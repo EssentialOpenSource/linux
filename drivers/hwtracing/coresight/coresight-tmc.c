@@ -182,7 +182,7 @@ struct tmc_drvdata {
 	bool			aborting;
 	char			*buf;
 	dma_addr_t		paddr;
-	void __iomem		*vaddr;
+	void			*vaddr;
 	u32			size;
 	struct mutex		mem_lock;
 	u32			mem_size;
