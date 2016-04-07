@@ -1506,9 +1506,9 @@ static void rt_set_nexthop(struct rtable *rt, __be32 daddr,
 #endif
 }
 
-static struct rtable *rt_dst_alloc(struct net_device *dev,
-				   unsigned int flags, u16 type,
-				   bool nopolicy, bool noxfrm, bool will_cache)
+struct rtable *rt_dst_alloc(struct net_device *dev,
+			    unsigned int flags, u16 type,
+			    bool nopolicy, bool noxfrm, bool will_cache)
 {
 	struct rtable *rt;
 
@@ -1537,6 +1537,7 @@ static struct rtable *rt_dst_alloc(struct net_device *dev,
 
 	return rt;
 }
+EXPORT_SYMBOL(rt_dst_alloc);
 
 /* called in rcu_read_lock() section */
 static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
