@@ -1459,6 +1459,9 @@ try_onemore:
 		if (need_fsck)
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
 
+		if (!retry)
+			goto skip_recovery;
+
 		err = recover_fsync_data(sbi, false);
 		if (err < 0) {
 			need_fsck = true;
@@ -1476,7 +1479,7 @@ try_onemore:
 			goto free_kobj;
 		}
 	}
-
+skip_recovery:
 	/* recover_fsync_data() cleared this already */
 	clear_sbi_flag(sbi, SBI_POR_DOING);
 
