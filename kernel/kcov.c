@@ -12,6 +12,7 @@
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
 #include <linux/kcov.h>
+#include <asm/setup.h>
 
 /*
  * kcov descriptor (one per opened debugfs file).
@@ -59,6 +60,11 @@ void __sanitizer_cov_trace_pc(void)
 	if (mode == KCOV_MODE_TRACE) {
 		unsigned long *area;
 		unsigned long pos;
+		unsigned long ip = _RET_IP_;
+
+#ifdef CONFIG_RANDOMIZE_BASE
+		ip -= kaslr_offset();
+#endif
 
 		/*
 		 * There is some code that runs in interrupts but for which
@@ -72,7 +78,7 @@ void __sanitizer_cov_trace_pc(void)
 		/* The first word is number of subsequent PCs. */
 		pos = READ_ONCE(area[0]) + 1;
 		if (likely(pos < t->kcov_size)) {
-			area[pos] = _RET_IP_;
+			area[pos] = ip;
 			WRITE_ONCE(area[0], pos);
 		}
 	}
