@@ -626,7 +626,7 @@ static void __pmic_arb_chained_irq(struct spmi_pmic_arb *pa, bool show)
 	}
 }
 
-static void pmic_arb_chained_irq(struct irq_desc *desc)
+static bool pmic_arb_chained_irq(struct irq_desc *desc)
 {
 	struct spmi_pmic_arb *pa = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
@@ -634,6 +634,7 @@ static void pmic_arb_chained_irq(struct irq_desc *desc)
 	chained_irq_enter(chip, desc);
 	__pmic_arb_chained_irq(pa, false);
 	chained_irq_exit(chip, desc);
+	return true;
 }
 
 static void qpnpint_irq_ack(struct irq_data *d)
