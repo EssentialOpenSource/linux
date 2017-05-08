@@ -799,6 +799,10 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
 		/* Use device name 'swradio' because 'sdr' was already taken. */
 		name_base = "swradio";
 		break;
+	case VFL_TYPE_NEKO:
+		type = VFL_TYPE_GRABBER;
+		name_base = "neko";
+		break;
 	default:
 		printk(KERN_ERR "%s called with unknown type: %d\n",
 		       __func__, type);
