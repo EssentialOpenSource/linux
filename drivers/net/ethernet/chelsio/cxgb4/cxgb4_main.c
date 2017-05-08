@@ -1704,7 +1704,7 @@ static int tid_init(struct tid_info *t)
 	       t->nftids * sizeof(*t->ftid_tab) +
 	       t->nsftids * sizeof(*t->ftid_tab);
 
-	t->tid_tab = t4_alloc_mem(size);
+	t->tid_tab = kvzalloc(size, GFP_KERNEL);
 	if (!t->tid_tab)
 		return -ENOMEM;
 
@@ -3748,7 +3748,7 @@ static int adap_init0(struct adapter *adap)
 		/* allocate memory to read the header of the firmware on the
 		 * card
 		 */
-		card_fw = t4_alloc_mem(sizeof(*card_fw));
+		card_fw = kvzalloc(sizeof(*card_fw), GFP_KERNEL);
 
 		/* Get FW from from /lib/firmware/ */
 		ret = request_firmware(&fw, fw_info->fw_mod_name,
@@ -3768,7 +3768,7 @@ static int adap_init0(struct adapter *adap)
 
 		/* Cleaning up */
 		release_firmware(fw);
-		t4_free_mem(card_fw);
+		kvfree(card_fw);
 
 		if (ret < 0)
 			goto bye;
