@@ -45,14 +45,14 @@
 				reg = <0>;
 				qcom,rbias = <68100>;
 				qcom,rtherm-at-25degc = <68000>;
-				qcom,beta-coefficient = <3450>;
+				qcom,beta-coefficient = <4050>;
 			};
 
 			skin_temp@1 {
 				reg = <1>;
 				qcom,rbias = <33000>;
 				qcom,rtherm-at-25degc = <68000>;
-				qcom,beta-coefficient = <3450>;
+				qcom,beta-coefficient = <4050>;
 			};
 
 			die_temp@2 {
