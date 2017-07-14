@@ -2008,8 +2008,8 @@ struct task_struct {
 	struct task_delay_info *delays;
 #endif
 #ifdef CONFIG_FAULT_INJECTION
-	int make_it_fail;
-	int fail_nth;
+	int				make_it_fail;
+	unsigned int			fail_nth;
 #endif
 	/*
 	 * when (nr_dirtied >= nr_dirtied_pause), it's time to call
