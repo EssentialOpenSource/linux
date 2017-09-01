@@ -1,0 +1,58 @@
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+
+/dts-v1/;
+
+#include "../qcom/msm8998-v2.1.dtsi"
+#include "msm8998-mata.dtsi"
+
+/ {
+	model = "Essential Mata EVT4";
+	compatible = "qcom,msm8998-mtp", "qcom,msm8998", "qcom,mtp";
+	/* For now, we are using MTP ID */
+	qcom,board-id = <8 0>;
+	essential,hw-id = <0 6 0>;
+
+	aliases {
+		i2c5 = &i2c_5;
+	};
+
+	/delete-node/ qcom,battery-data;
+	mtp_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		#include "battery-3040mah-evt1-1.dtsi"
+		#include "battery-3040mah-evt2.dtsi"
+		#include "battery-3040mah-evt3.dtsi"
+		#include "battery-3040mah-dvt.dtsi"
+	};
+};
+
+&mdss_dsi0 {
+	pinctrl-0 = <&msm8998_gpio94_active &msm8998_gpio10_active>;
+	pinctrl-1 = <&msm8998_gpio94_suspend &msm8998_gpio10_suspend>;
+	qcom,panel-mode-gpio = <>;
+};
+
+&dsi_nt35597_dsc_cmd_mata {
+	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
+};
+
+&dsi_otm2503b_dsc_cmd {
+	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
+};
+
+&essential_info {
+	essential,baseband = "2.6";
+	essential,bandinfo =
+"G_850_900_1800_1900^W_1_2_4_5_6_8_11^C_0_1_10^T_34_39^L_1_2_3_4_5_7_8_11_12_13_17_18_19_20_21_25_26_28A_28B_29_30_32_38_39_40_41_42_43_66";
+};

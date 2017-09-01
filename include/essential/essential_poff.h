@@ -1,0 +1,25 @@
+#ifndef __ESSENTIAL_POFF_H
+#define __ESSENTIAL_POFF_H
+
+/* QC: PMIC */
+#define ESSENTIAL_POFF_SOFT          0x00000001
+#define ESSENTIAL_POFF_PS_HOLD       0x00000002
+#define ESSENTIAL_POFF_PMIC_WD       0x00000004  /* PMIC Watchdog */
+#define ESSENTIAL_POFF_GP1           0x00000008  /* Keypad_Reset1 */
+#define ESSENTIAL_POFF_GP2           0x00000010  /* Keypad_Reset2 */
+#define ESSENTIAL_POFF_SIMULT_N      0x00000020  /* Simultaneous KPDPWR_N and RESIN_N */
+#define ESSENTIAL_POFF_RESIN_N       0x00000040
+#define ESSENTIAL_POFF_KPDPWR_N      0x00000080
+
+#define ESSENTIAL_POFF_RAW_XVDD_SHD  0x00000400
+#define ESSENTIAL_POFF_RAW_DVDD_SHD  0x00000800
+#define ESSENTIAL_POFF_IMM_XVDD_SD   0x00001000
+#define ESSENTIAL_POFF_S3_RESET      0x00002000
+#define ESSENTIAL_POFF_FAULT_SEQ     0x00004000
+#define ESSENTIAL_POFF_POFF_SEQ      0x00008000
+
+#define ESSENTIAL_POFF_OTST3         0x80000000  /* Over Temperature */
+#define ESSENTIAL_POFF_UVLO          0x40000000  /* Under Voltage */
+#define ESSENTIAL_POFF_OVLO          0x20000000  /* Over Voltage */
+
+#endif

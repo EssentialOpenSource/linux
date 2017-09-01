@@ -1,0 +1,127 @@
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+
+/dts-v1/;
+
+#include "../qcom/msm8998.dtsi"
+#include "msm8998-mata.dtsi"
+
+/ {
+	model = "Essential Mata EVB";
+	compatible = "qcom,msm8998-mtp", "qcom,msm8998", "qcom,mtp";
+	/* For now, we are using MTP ID */
+	qcom,board-id = <8 0>;
+	essential,hw-id = <0 7 0>;
+
+	/delete-node/ qcom,battery-data;
+	mtp_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		#include "battery-3040mah-evt1-1.dtsi"
+		#include "battery-3040mah-evt2.dtsi"
+		#include "battery-3040mah-evt3.dtsi"
+		#include "battery-3040mah-dvt.dtsi"
+	};
+};
+
+&qusb_phy0 {
+	qcom,qusb-phy-host-init-seq =
+			/* value reg_offsets> */
+				<0x63 0x210
+				0x13 0x04
+				0x7c 0x18c
+				0x80 0x2c
+				0x0a 0x184
+				0x8c 0x21c
+				0x05 0x23c
+				0x03 0x240
+				0xff 0x218
+				0x62 0x210>;
+};
+
+
+&soc {
+	sound-9335 {
+		qcom,audio-routing =
+			"AIF4 VI", "MCLK",
+			"RX_BIAS", "MCLK",
+			"MADINPUT", "MCLK",
+			"AMIC2", "MIC BIAS2",
+			"MIC BIAS2", "Analog Mic2",
+			"AMIC3", "MIC BIAS2",
+			"MIC BIAS2", "Analog Mic3",
+			"AMIC4", "MIC BIAS2",
+			"MIC BIAS2", "Analog Mic4",
+			"AMIC5", "MIC BIAS1",
+			"MIC BIAS1", "Analog Mic5",
+			"AMIC6", "MIC BIAS1",
+			"MIC BIAS1", "Analog Mic6",
+			"DMIC0", "MIC BIAS4",
+			"MIC BIAS4", "Fourth Mic",
+			"DMIC1", "MIC BIAS4",
+			"MIC BIAS4", "Third Mic",
+			"DMIC2", "MIC BIAS3",
+			"MIC BIAS3", "Secondary Mic",
+			"DMIC3", "MIC BIAS3",
+			"MIC BIAS3", "Handset Mic",
+			"DMIC4", "MIC BIAS1",
+			"MIC BIAS1", "Digital Mic4",
+			"DMIC5", "MIC BIAS1",
+			"MIC BIAS1", "Digital Mic5",
+			"Lineout_1 amp", "LINEOUT1";
+	};
+};
+
+&pmi8998_charger {
+	qcom,batteryless-platform;
+};
+
+&fpc1020 {
+	status = "disabled";
+};
+
+&pmi8998_fg {
+	status = "disabled";
+};
+
+&spi_5 {
+	status = "okay";
+};
+
+&i2c_5 {
+	status = "disabled";
+};
+
+&hac_amp_en_gpio {
+	pinctrl-0 = <&msm8998_gpio42_active>;
+	pinctrl-1 = <&msm8998_gpio42_sleep>;
+};
+
+&stmvl53l0 {
+	status = "disabled";
+};
+
+&msm8998_gpio107_default {
+	config {
+		pins = "gpio107";
+		drive-strength = <2>;
+		bias-disable;
+	};
+};
+
+&i2c_2 {
+	status = "disabled";
+};
+
+&essential_info {
+	essential,baseband = "1.1";
+};

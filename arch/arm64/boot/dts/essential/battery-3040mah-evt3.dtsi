@@ -1,0 +1,71 @@
+qcom,mata_3040mah_evt3 {
+	qcom, = <24>;
+	/* #2752893_FIH_PM1_3040mAh_averaged_MasterSlave_Feb6th2017 */
+	qcom,max-voltage-uv = <4400000>;
+	qcom,nom-batt-capacity-mah = <3040>;
+	qcom,fg-cc-cv-threshold-mv = <4390>;
+	qcom,fastchg-current-ma = <2000>;
+	qcom,batt-id-kohm = <150>;
+	qcom,battery-beta = <3435>;
+	qcom,battery-type = "mata_3040mah_evt3";
+	qcom,checksum = <0xD654>;
+	qcom,gui-version = "PMI8998GUI - 2.0.0.54";
+	qcom,fg-profile-data = [
+		 70 1F AA 05
+		 7F 0A 3A 06
+		 69 1D CF F5
+		 16 12 70 14
+		 3C 19 2E 22
+		 F6 3C DC 4A
+		 52 00 00 00
+		 14 00 00 00
+		 00 00 5D C5
+		 CA CC 05 D2
+		 27 00 08 00
+		 59 EA 8E EC
+		 69 06 F1 00
+		 85 FD A3 12
+		 ED 06 21 3A
+		 1E 06 09 20
+		 27 00 14 00
+		 54 20 D1 04
+		 23 0B 9A 05
+		 36 1D 34 01
+		 63 F2 33 04
+		 8A 19 7E 22
+		 F4 45 42 52
+		 5A 00 00 00
+		 0D 00 00 00
+		 00 00 B6 CC
+		 EE AC D8 C2
+		 1F 00 00 00
+		 47 F2 8E EC
+		 65 F4 69 00
+		 D7 E5 5E 03
+		 5B 00 05 22
+		 B3 33 CC FF
+		 07 10 00 00
+		 20 0C 66 46
+		 1F 00 40 00
+		 80 01 0A FA
+		 FF 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 00 00 00 00
+	];
+};

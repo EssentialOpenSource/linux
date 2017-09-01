@@ -1,0 +1,54 @@
+menu "Essential specific device drivers"
+	depends on ARCH_QCOM
+
+config ESSENTIAL_NV
+	bool "Essential NV"
+	default n
+	help
+	  Export NV information as virtual files
+
+config ESSENTIAL_APR
+	bool "Essential APR"
+	default n
+	help
+	  Export APR information as virtual files
+
+config ESSENTIAL_UFS
+	bool "Essential UFS"
+	default n
+	help
+	  Export UFS information as virtual files
+
+config ESSENTIAL_SENSOR
+	bool "Essential Sensor"
+	default n
+	help
+	  Export Sensor information as virtual files
+
+config ESSENTIAL_MFR
+	bool "Essential MFR"
+	default n
+	help
+	  Export MFR information as virtual files
+
+config SIDECAR
+	tristate "Sidecar Power bring up"
+	help
+	  Say 'y' here to include support for the Sidecar power
+	  bring up driver.
+	  This driver detect connected accessory and set the proper
+	  power configuration (SOURCE/SINK)
+
+config BOARD_MATA
+	bool "Mata device support"
+	depends on ARCH_MSM8998
+	help
+	 Say 'y' here to include Mata only modifications
+
+config ESSENTIAL_SIBEAM
+	bool "Essential SiBeam support"
+	default n
+	help
+	  Enable SiBeam support for Essential board
+
+endmenu
