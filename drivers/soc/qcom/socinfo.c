@@ -77,7 +77,11 @@ const char *hw_platform[] = {
 	[HW_PLATFORM_SVLTE_FFA] = "SVLTE_FFA",
 	[HW_PLATFORM_SVLTE_SURF] = "SLVTE_SURF",
 	[HW_PLATFORM_MTP_MDM] = "MDM_MTP_NO_DISPLAY",
+#ifdef CONFIG_BOARD_MATA
+	[HW_PLATFORM_MTP] = "Mata",
+#else
 	[HW_PLATFORM_MTP] = "MTP",
+#endif
 	[HW_PLATFORM_RCM] = "RCM",
 	[HW_PLATFORM_LIQUID] = "Liquid",
 	[HW_PLATFORM_DRAGON] = "Dragon",
