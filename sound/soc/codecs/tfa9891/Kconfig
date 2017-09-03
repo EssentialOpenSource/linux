@@ -1,0 +1,2 @@
+config SND_SOC_TFA9891
+	tristate "NXP TFA9891 speaker amplifier driver"
