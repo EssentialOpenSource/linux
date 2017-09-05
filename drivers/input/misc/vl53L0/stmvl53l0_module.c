@@ -62,7 +62,7 @@ static struct stmvl53l0_module_fn_t stmvl53l0_module_func_tbl = {
 	.deinit = stmvl53l0_exit_i2c,
 	.power_up = stmvl53l0_power_up_i2c,
 	.power_down = stmvl53l0_power_down_i2c,
-	.stmv53l0_cci_power_status = NULL;
+	.query_power_status = NULL,
 };
 #endif
 struct stmvl53l0_module_fn_t *pmodule_func_tbl;
