@@ -29,6 +29,12 @@
 #include "xhci.h"
 #include "xhci-trace.h"
 
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+#include <linux/iommu.h>
+#include <asm/dma-iommu.h>
+#endif
+
+
 /*
  * Allocates a generic ring segment from the ring pool, sets the dma address,
  * initializes the segment to zero, and sets the private next pointer to NULL.
@@ -2017,7 +2023,9 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
 	xhci->dcbaa = NULL;
 
 	scratchpad_free(xhci);
-
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+	xhci_mem_arm_iommu_destroy(xhci);
+#endif
 	if (!xhci->rh_bw)
 		goto no_bw;
 
@@ -2829,7 +2837,12 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 	temp &= ~DEV_NOTE_MASK;
 	temp |= DEV_NOTE_FWAKE;
 	writel(temp, &xhci->op_regs->dev_notification);
-
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+	if (xhci_mem_arm_iommu_create(xhci))
+	{
+		goto fail;
+	}
+#endif
 	return 0;
 
 fail:
@@ -2839,3 +2852,95 @@ fail:
 	xhci_mem_cleanup(xhci);
 	return -ENOMEM;
 }
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+int xhci_mem_arm_iommu_create(struct xhci_hcd *xhci)
+{
+	int rc;
+	int atomic_ctx;
+	int bypass_enable;
+	struct pci_dev *pdev;
+
+	pdev = to_pci_dev(xhci->main_hcd->self.controller);
+	atomic_ctx = 1;
+	bypass_enable = 1;
+
+	xhci_dbg(xhci, "xhci_mem_arm_io_mmu_create\n");
+
+	if (pdev->vendor != 0x1B73)
+	{
+		rc = 0;
+		goto Exit;
+	}
+
+	xhci->arm_iommu_mapping = arm_iommu_create_mapping( &pci_bus_type,
+								xhci->main_hcd->rsrc_start,
+								xhci->main_hcd->rsrc_len);
+	if (IS_ERR_OR_NULL(xhci->arm_iommu_mapping))
+	{
+		xhci_dbg(xhci, "Failed to create IOMMU mapping.\n");
+		xhci->arm_iommu_mapping = NULL;
+		rc = -ENOMEM;
+		goto Exit;
+	}
+
+	rc = iommu_domain_set_attr(xhci->arm_iommu_mapping->domain,
+							    DOMAIN_ATTR_ATOMIC,
+								&atomic_ctx);
+	if (rc)
+	{
+		xhci_dbg(xhci, "Set atomic attribute to SMMU failed.\n");
+		arm_iommu_release_mapping(xhci->arm_iommu_mapping);
+		xhci->arm_iommu_mapping = NULL;
+		goto Exit;
+	}
+
+	rc = iommu_domain_set_attr(xhci->arm_iommu_mapping->domain,
+							    DOMAIN_ATTR_S1_BYPASS,
+								&bypass_enable);
+	if (rc)
+	{
+		xhci_dbg(xhci, "Set bypass attribute to SMMU failed.\n");
+		arm_iommu_release_mapping(xhci->arm_iommu_mapping);
+		xhci->arm_iommu_mapping = NULL;
+		goto Exit;
+	}
+
+	rc = arm_iommu_attach_device(xhci->main_hcd->self.controller,
+								xhci->arm_iommu_mapping);
+	if (rc)
+	{
+		xhci_dbg(xhci, "arm_iommu_attach_device failed.\n");
+		arm_iommu_release_mapping(xhci->arm_iommu_mapping);
+		xhci->arm_iommu_mapping = NULL;
+		goto Exit;
+	}
+
+Exit:
+    ;
+    return rc;
+}
+
+void xhci_mem_arm_iommu_destroy(struct xhci_hcd *xhci)
+{
+	struct pci_dev *pdev;
+
+	pdev = to_pci_dev(xhci->main_hcd->self.controller);
+
+	xhci_dbg(xhci, "xhci_mem_arm_io_mmu_destroy\n");
+
+	if (pdev->vendor != 0x1B73)
+	{
+		goto Exit;
+	}
+
+	if (NULL != xhci->arm_iommu_mapping)
+	{
+		arm_iommu_detach_device(xhci->main_hcd->self.controller);
+		arm_iommu_release_mapping(xhci->arm_iommu_mapping);
+		xhci->arm_iommu_mapping = NULL;
+	}
+
+Exit:
+	;
+}
+#endif

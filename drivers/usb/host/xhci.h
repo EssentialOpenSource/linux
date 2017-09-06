@@ -1642,6 +1642,7 @@ struct xhci_hcd {
 /* For controllers with a broken beyond repair streams implementation */
 #define XHCI_BROKEN_STREAMS	(1 << 19)
 #define XHCI_PME_STUCK_QUIRK	(1 << 20)
+#define XHCI_SIBEAM_QUIRK	(1 << 21)
 #define XHCI_MISSING_CAS	(1 << 24)
 	unsigned int		num_active_eps;
 	unsigned int		limit_active_eps;
@@ -1669,6 +1670,9 @@ struct xhci_hcd {
 	u32			port_status_u0;
 /* Compliance Mode Timer Triggered every 2 seconds */
 #define COMP_MODE_RCVRY_MSECS 2000
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+	struct dma_iommu_mapping *arm_iommu_mapping;
+#endif
 };
 
 /* Platform specific overrides to generic XHCI hc_driver ops */
@@ -1968,4 +1972,9 @@ struct xhci_ep_ctx *xhci_get_ep_ctx(struct xhci_hcd *xhci, struct xhci_container
 int xhci_submit_single_step_set_feature(struct usb_hcd *hcd, struct urb *urb,
 					int is_setup);
 
+// arm mmu setting.
+#ifdef CONFIG_ESSENTIAL_SIBEAM
+int xhci_mem_arm_iommu_create(struct xhci_hcd *xhci);
+void xhci_mem_arm_iommu_destroy(struct xhci_hcd *xhci);
+#endif /*CONFIG_ESSENTIAL_SIBEAM*/
 #endif /* __LINUX_XHCI_HCD_H */
