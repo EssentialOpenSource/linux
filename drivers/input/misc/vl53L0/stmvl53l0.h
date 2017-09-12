@@ -36,7 +36,7 @@
 /* if don't want to have output from vl53l0_dbgmsg, comment out #DEBUG macro */
 #define DEBUG
 #define vl53l0_dbgmsg(str, args...)	\
-	pr_err("%s: " str, __func__, ##args)
+	pr_debug("%s: " str, __func__, ##args)
 #define vl53l0_errmsg(str, args...) \
 	pr_err("%s: " str, __func__, ##args)
 
@@ -194,6 +194,9 @@ struct stmvl53l0_data {
 
 	struct timer_list timer;
 	uint32_t flushCount;
+	unsigned int en_gpio;
+	struct pinctrl *ts_pinctrl;
+	struct pinctrl_state *pinctrl_state_active;
 
 	/* Debug */
 	unsigned int enableDebug;
