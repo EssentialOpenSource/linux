@@ -957,7 +957,8 @@ static void stmvl53l0_work_handler(struct work_struct *work)
 	mutex_lock(&data->work_mutex);
 	/* vl53l0_dbgmsg("Enter\n"); */
 
-	if (pmodule_func_tbl->query_power_status(data->client_object) == 0) {
+	if (pmodule_func_tbl->query_power_status &&
+	    pmodule_func_tbl->query_power_status(data->client_object) == 0) {
 		if (data->enable_ps_sensor == 1) {
 			stmvl53l0_stop(data);
 			data->enable_ps_sensor = 0;
