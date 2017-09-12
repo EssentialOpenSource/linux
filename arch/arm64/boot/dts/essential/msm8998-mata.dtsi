@@ -403,6 +403,7 @@
 		reg = <0x29>;
 		vdd-supply = <&pm8998_l21>;
 		qcom,en_gpio = <&tlmm 126 0x00>;
+		stm,irq-gpio = <&tlmm 26 0x2008>;
 		pinctrl-names = "vl53l0_en_active";
 		pinctrl-0 = <&msm8998_gpio126_default &msm8998_gpio26_default>;
 	};

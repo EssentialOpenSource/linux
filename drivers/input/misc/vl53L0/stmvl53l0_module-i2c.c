@@ -83,30 +83,29 @@ static int stmvl53l0_pinctrl_init(struct i2c_client *client) {
 	vl53l0_dbgmsg("Enter\n");
 
 	vl53l0_dbgmsg("[STM VL5310] %s start \n", __func__);
-    /* Get pinctrl if target uses pinctrl */
-    data->ts_pinctrl = devm_pinctrl_get((&(client->dev)));
-    if (IS_ERR_OR_NULL(data->ts_pinctrl)) {
-        rc = PTR_ERR(data->ts_pinctrl);
-        pr_err("Target does not use pinctrl %d\n", rc);
-        goto err_pinctrl_get;
-    }
+	/* Get pinctrl if target uses pinctrl */
+	data->ts_pinctrl = devm_pinctrl_get((&(client->dev)));
+	if (IS_ERR_OR_NULL(data->ts_pinctrl)) {
+		rc = PTR_ERR(data->ts_pinctrl);
+		pr_err("Target does not use pinctrl %d\n", rc);
+		goto err_pinctrl_get;
+	}
 
-    data->pinctrl_state_active
-        = pinctrl_lookup_state(data->ts_pinctrl, "vl53l0_en_active");
-    if (IS_ERR_OR_NULL(data->pinctrl_state_active)) {
-        rc = PTR_ERR(data->pinctrl_state_active);
-        dev_err(&client->dev, "Can not lookup %s pinstate %d\n", PINCTRL_STATE_ACTIVE, rc);
-        goto err_pinctrl_lookup;
-    }
+	data->pinctrl_state_active
+		= pinctrl_lookup_state(data->ts_pinctrl, "vl53l0_en_active");
+	if (IS_ERR_OR_NULL(data->pinctrl_state_active)) {
+		rc = PTR_ERR(data->pinctrl_state_active);
+		dev_err(&client->dev, "Can not lookup %s pinstate %d\n", PINCTRL_STATE_ACTIVE, rc);
+		goto err_pinctrl_lookup;
+	}
 
-    return 0;
+	return 0;
 
 err_pinctrl_lookup:
-    devm_pinctrl_put(data->ts_pinctrl);
+	devm_pinctrl_put(data->ts_pinctrl);
 err_pinctrl_get:
-    data->ts_pinctrl = NULL;
-    return rc;
-
+	data->ts_pinctrl = NULL;
+	return rc;
 }
 
 static int stmvl53l0_probe(struct i2c_client *client,
@@ -139,6 +138,16 @@ static int stmvl53l0_probe(struct i2c_client *client,
 
 	/* setup bus type */
 	vl53l0_data->bus_type = I2C_BUS;
+
+	vl53l0_data->irq_gpio = of_get_named_gpio_flags(i2c_object->client->dev.of_node,
+		"stm,irq-gpio", 0, NULL);
+
+	if (!gpio_is_valid(vl53l0_data->irq_gpio)) {
+		vl53l0_errmsg("%d failed get irq gpio", __LINE__);
+		kfree(vl53l0_data->client_object);
+		kfree(vl53l0_data);
+		return -EINVAL;
+	}
 
 	/* setup regulator */
 	rc = stmvl53l0_parse_vdd(&i2c_object->client->dev, i2c_object);
