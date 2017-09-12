@@ -281,6 +281,43 @@ static const struct tadc_pt tadc_therm_3450b_68k[] = {
 	{ 1712127,	-40000 },
 };
 
+static const struct tadc_pt tadc_therm_4150b_68k[] = {
+       { 2301,         120000 },
+       { 2645,         115000 },
+       { 3051,         110000 },
+       { 3533,         105000 },
+       { 4107,         100000 },
+       { 4792,         95000 },
+       { 5613,         90000 },
+       { 6603,         85000 },
+       { 7802,         80000 },
+       { 9259,         75000 },
+       { 11039,        70000 },
+       { 13224,        65000 },
+       { 15920,        60000 },
+       { 19263,        55000 },
+       { 23433,        50000 },
+       { 28661,        45000 },
+       { 35254,        40000 },
+       { 43618,        35000 },
+       { 54292,        30000 },
+       { 68000,        25000 },
+       { 85717,        20000 },
+       { 108770,       15000 },
+       { 138950,       10000 },
+       { 178770,       5000 },
+       { 231650,       0 },
+       { 302380,       -5000 },
+       { 397680,       -10000 },
+       { 527030,       -15000 },
+       { 703910,       -20000 },
+       { 947570,       -25000 },
+       { 1285700,      -30000 },
+       { 1758300,      -35000 },
+       { 2423600,      -40000 },
+};
+
+
 static bool tadc_is_reg_locked(struct tadc_chip *chip, u16 reg)
 {
 	if ((reg & 0xFF00) == chip->tadc_cmp_base)
@@ -1015,6 +1052,12 @@ static int tadc_set_therm_table(struct tadc_chan_data *chan_data, u32 beta,
 	if (beta == 3450 && rtherm == 68000) {
 		chan_data->table = tadc_therm_3450b_68k;
 		chan_data->tablesize = ARRAY_SIZE(tadc_therm_3450b_68k);
+		return 0;
+	}
+
+	if (beta == 4150 && rtherm == 68000) {
+		chan_data->table = tadc_therm_4150b_68k;
+		chan_data->tablesize = ARRAY_SIZE(tadc_therm_4150b_68k);
 		return 0;
 	}
 
