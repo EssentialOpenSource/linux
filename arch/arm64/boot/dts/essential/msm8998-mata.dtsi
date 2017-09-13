@@ -154,7 +154,7 @@
 	qcom,hvdcp-disable;
 	qcom,fcc-max-ua = <2000000>;
 	qcom,fv-max-uv = <4400000>;
-	qcom,step-soc-thresholds = <80 85 90 95>;
+	qcom,step-soc-thresholds = <75 85 90 95>;
 	qcom,step-current-deltas = <500000 0 0 0 0>;
 	qcom,auto-recharge-soc;
 	qcom,jeita-fv-comp-cool = <0>;
