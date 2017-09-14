@@ -1,0 +1,17 @@
+#
+# Configuration for FPC
+#
+menuconfig INPUT_FINGERPRINT
+	bool "Fingerprints"
+	help
+	  Say Y here, and a list of supported fingerprints will be displayed.
+
+if INPUT_FINGERPRINT
+
+config INPUT_FPC1020
+	bool "FPC 1020 Driver"
+	default n
+	help
+	  This is a FPC 1020 chipset Driver.
+
+endif
