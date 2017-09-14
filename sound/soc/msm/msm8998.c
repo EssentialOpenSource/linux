@@ -39,7 +39,14 @@
 #include "../codecs/wcd9335.h"
 #include "../codecs/wcd934x/wcd934x.h"
 #include "../codecs/wcd934x/wcd934x-mbhc.h"
+
+#undef USE_QC_HIFI_AMP
+#undef USE_QC_SPK_AMP
+#undef USE_QC_MBHC
+
+#ifdef USE_QC_SPK_AMP
 #include "../codecs/wsa881x.h"
+#endif
 
 #define DRV_NAME "msm8998-asoc-snd"
 
@@ -60,14 +67,19 @@
 #define SAMPLING_RATE_352P8KHZ  352800
 #define SAMPLING_RATE_384KHZ    384000
 
+#ifdef USE_QC_MBHC
 #define WCD9XXX_MBHC_DEF_BUTTONS    8
 #define WCD9XXX_MBHC_DEF_RLOADS     5
+#endif
+
 #define CODEC_EXT_CLK_RATE          9600000
 #define ADSP_STATE_READY_TIMEOUT_MS 3000
 #define DEV_NAME_STR_LEN            32
 
+#ifdef USE_QC_SPK_AMP
 #define WSA8810_NAME_1 "wsa881x.20170211"
 #define WSA8810_NAME_2 "wsa881x.20170212"
+#endif
 
 #define WCN_CDC_SLIM_RX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX 3
@@ -75,7 +87,9 @@
 #define TDM_CHANNEL_MAX 8
 #define TDM_SLOT_OFFSET_MAX 8
 
+#ifdef USE_QC_HIFI_AMP
 #define MSM_HIFI_ON 1
+#endif
 
 enum {
 	SLIM_RX_0 = 0,
@@ -154,10 +168,12 @@ enum {
 	EXT_DISP_RX_IDX_MAX,
 };
 
+#ifdef USE_QC_SPK_AMP
 struct msm_wsa881x_dev_info {
 	struct device_node *of_node;
 	u32 index;
 };
+#endif
 
 struct msm_asoc_mach_data {
 	u32 mclk_freq;
@@ -173,7 +189,9 @@ struct msm_asoc_mach_data {
 struct msm_asoc_wcd93xx_codec {
 	void* (*get_afe_config_fn)(struct snd_soc_codec *codec,
 				   enum afe_config_type config_type);
+#ifdef USE_QC_MBHC
 	void (*mbhc_hs_detect_exit)(struct snd_soc_codec *codec);
+#endif
 };
 
 enum {
@@ -423,7 +441,9 @@ static char const *mi2s_rate_text[] = {"KHZ_8", "KHZ_16",
 static const char *const mi2s_ch_text[] = {"One", "Two", "Three", "Four",
 					   "Five", "Six", "Seven",
 					   "Eight"};
+#ifdef USE_QC_HIFI_AMP
 static const char *const hifi_text[] = {"Off", "On"};
+#endif
 
 static SOC_ENUM_SINGLE_EXT_DECL(slim_0_rx_chs, slim_rx_ch_text);
 static SOC_ENUM_SINGLE_EXT_DECL(slim_2_rx_chs, slim_rx_ch_text);
@@ -485,23 +505,34 @@ static SOC_ENUM_SINGLE_EXT_DECL(quat_mi2s_rx_chs, mi2s_ch_text);
 static SOC_ENUM_SINGLE_EXT_DECL(quat_mi2s_tx_chs, mi2s_ch_text);
 static SOC_ENUM_SINGLE_EXT_DECL(mi2s_rx_format, bit_format_text);
 static SOC_ENUM_SINGLE_EXT_DECL(mi2s_tx_format, bit_format_text);
+#ifdef USE_QC_HIFI_AMP
 static SOC_ENUM_SINGLE_EXT_DECL(hifi_function, hifi_text);
+#endif
 
 static struct platform_device *spdev;
+#ifdef USE_QC_HIFI_AMP
 static int msm_hifi_control;
+#endif
 
 static bool is_initial_boot;
 static bool codec_reg_done;
+#ifdef USE_QC_SPK_AMP
 static struct snd_soc_aux_dev *msm_aux_dev;
 static struct snd_soc_codec_conf *msm_codec_conf;
+#endif
 static struct msm_asoc_wcd93xx_codec msm_codec_fn;
 
+#ifdef USE_QC_MBHC
 static void *def_tasha_mbhc_cal(void);
 static void *def_tavil_mbhc_cal(void);
+#endif
 static int msm_snd_enable_codec_ext_clk(struct snd_soc_codec *codec,
 					int enable, bool dapm);
+#ifdef USE_QC_SPK_AMP
 static int msm_wsa881x_init(struct snd_soc_component *component);
+#endif
 
+#ifdef USE_QC_MBHC
 /*
  * Need to report LINEIN
  * if R/L channel impedance is larger than 5K ohm
@@ -527,6 +558,7 @@ static struct wcd_mbhc_config wcd_mbhc_cfg = {
 	.anc_micbias = MIC_BIAS_2,
 	.enable_anc_mic_detect = false,
 };
+#endif
 
 static struct snd_soc_dapm_route wcd_audio_paths_tasha[] = {
 	{"MIC BIAS1", NULL, "MCLK TX"},
@@ -2523,6 +2555,7 @@ static int msm_mi2s_tx_format_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+#ifdef USE_QC_HIFI_AMP
 static int msm_hifi_ctrl(struct snd_soc_codec *codec)
 {
 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
@@ -2572,6 +2605,7 @@ static int msm_hifi_put(struct snd_kcontrol *kcontrol,
 
 	return 0;
 }
+#endif
 
 static const struct snd_kcontrol_new msm_snd_controls[] = {
 	SOC_ENUM_EXT("SLIM_0_RX Channels", slim_0_rx_chs,
@@ -2791,8 +2825,10 @@ static const struct snd_kcontrol_new msm_snd_controls[] = {
 			msm_mi2s_rx_format_get, msm_mi2s_rx_format_put),
 	SOC_ENUM_EXT("QUAT_MI2S_TX Format", mi2s_tx_format,
 			msm_mi2s_tx_format_get, msm_mi2s_tx_format_put),
+#ifdef USE_QC_HIFI_AMP
 	SOC_ENUM_EXT("HiFi Function", hifi_function, msm_hifi_get,
 			msm_hifi_put),
+#endif
 };
 
 static int msm_snd_enable_codec_ext_clk(struct snd_soc_codec *codec,
@@ -2859,6 +2895,7 @@ static int msm_mclk_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+#ifdef USE_QC_HIFI_AMP
 static int msm_hifi_ctrl_event(struct snd_soc_dapm_widget *w,
 			       struct snd_kcontrol *k, int event)
 {
@@ -2891,6 +2928,7 @@ static int msm_hifi_ctrl_event(struct snd_soc_dapm_widget *w,
 
 	return 0;
 }
+#endif
 
 static int msm_ext_hac_amp_enable(struct snd_soc_codec *codec, u32 on)
 {
@@ -2952,7 +2990,9 @@ static const struct snd_soc_dapm_widget msm_dapm_widgets[] = {
 	SND_SOC_DAPM_SPK("Lineout_3 amp", NULL),
 	SND_SOC_DAPM_SPK("Lineout_2 amp", NULL),
 	SND_SOC_DAPM_SPK("Lineout_4 amp", NULL),
+#ifdef USE_QC_HIFI_AMP
 	SND_SOC_DAPM_SPK("hifi amp", msm_hifi_ctrl_event),
+#endif
 	SND_SOC_DAPM_MIC("Handset Mic", NULL),
 	SND_SOC_DAPM_MIC("Secondary Mic", NULL),
 	SND_SOC_DAPM_MIC("Third Mic", NULL),
@@ -3380,6 +3420,7 @@ done:
 	return rc;
 }
 
+#ifdef USE_QC_MBHC
 static bool msm_swap_gnd_mic(struct snd_soc_codec *codec)
 {
 	struct snd_soc_card *card = codec->component.card;
@@ -3402,6 +3443,7 @@ static bool msm_swap_gnd_mic(struct snd_soc_codec *codec)
 	pr_debug("%s: swap select switch %d to %d\n", __func__, value, !value);
 	return true;
 }
+#endif
 
 static int msm_afe_set_config(struct snd_soc_codec *codec)
 {
@@ -3569,7 +3611,9 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+#ifdef USE_QC_SPK_AMP
 	struct snd_soc_pcm_runtime *rtd_aux = rtd->card->rtd_aux;
+#endif
 	struct snd_card *card;
 	struct snd_info_entry *entry;
 	struct msm_asoc_mach_data *pdata =
@@ -3678,7 +3722,9 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 		msm_codec_fn.get_afe_config_fn = tavil_get_afe_config;
 	} else {
 		msm_codec_fn.get_afe_config_fn = tasha_get_afe_config;
+#ifdef USE_QC_MBHC
 		msm_codec_fn.mbhc_hs_detect_exit = tasha_mbhc_hs_detect_exit;
+#endif
 	}
 
 	ret = msm_adsp_power_up_config(codec);
@@ -3729,6 +3775,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	pr_debug("%s: Number of aux devices: %d\n",
 		__func__, rtd->card->num_aux_devs);
 	if (!strcmp(dev_name(codec_dai->dev), "tavil_codec")) {
+#ifdef USE_QC_SPK_AMP
 		if (rtd->card->num_aux_devs && rtd_aux && rtd_aux->component)
 			if (!strcmp(rtd_aux->component->name, WSA8810_NAME_1) ||
 			    !strcmp(rtd_aux->component->name, WSA8810_NAME_2)) {
@@ -3736,6 +3783,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 				tavil_set_spkr_gain_offset(rtd->codec,
 							RX_GAIN_OFFSET_M1P5_DB);
 		}
+#endif
 		card = rtd->card->snd_card;
 		entry = snd_register_module_info(card->module, "codecs",
 						 card->proc_root);
@@ -3748,6 +3796,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 		pdata->codec_root = entry;
 		tavil_codec_info_create_codec_entry(pdata->codec_root, codec);
 	} else {
+#ifdef USE_QC_SPK_AMP
 		if (rtd->card->num_aux_devs && rtd_aux && rtd_aux->component)
 			if (!strcmp(rtd_aux->component->name, WSA8810_NAME_1) ||
 			    !strcmp(rtd_aux->component->name, WSA8810_NAME_2)) {
@@ -3755,6 +3804,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 				tasha_set_spkr_gain_offset(rtd->codec,
 							RX_GAIN_OFFSET_M1P5_DB);
 		}
+#endif
 		card = rtd->card->snd_card;
 		entry = snd_register_module_info(card->module, "codecs",
 						 card->proc_root);
@@ -3786,6 +3836,7 @@ static int msm_wcn_init(struct snd_soc_pcm_runtime *rtd)
 					   tx_ch, ARRAY_SIZE(rx_ch), rx_ch);
 }
 
+#ifdef USE_QC_MBHC
 static void *def_tasha_mbhc_cal(void)
 {
 	void *tasha_wcd_cal;
@@ -3853,6 +3904,7 @@ static void *def_tavil_mbhc_cal(void)
 
 	return tavil_wcd_cal;
 }
+#endif
 
 static int msm_snd_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
@@ -6346,7 +6398,9 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 	const char *be_dl_name = LPASS_BE_SLIMBUS_0_RX;
 	struct snd_soc_pcm_runtime *rtd;
 	int ret = 0;
+#ifdef USE_QC_MBHC
 	void *mbhc_calibration;
+#endif
 
 	rtd = snd_soc_get_pcm_runtime(card, be_dl_name);
 	if (!rtd) {
@@ -6357,6 +6411,7 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 		goto err_pcm_runtime;
 	}
 
+#ifdef USE_QC_MBHC
 	mbhc_calibration = def_tasha_mbhc_cal();
 	if (!mbhc_calibration) {
 		ret = -ENOMEM;
@@ -6369,11 +6424,15 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 			__func__, ret);
 		goto err_hs_detect;
 	}
+#endif
+
 	return 0;
 
+#ifdef USE_QC_MBHC
 err_hs_detect:
 	kfree(mbhc_calibration);
 err_mbhc_cal:
+#endif
 err_pcm_runtime:
 	return ret;
 }
@@ -6383,7 +6442,9 @@ static int msm_snd_card_tavil_late_probe(struct snd_soc_card *card)
 	const char *be_dl_name = LPASS_BE_SLIMBUS_0_RX;
 	struct snd_soc_pcm_runtime *rtd;
 	int ret = 0;
+#ifdef USE_QC_MBHC
 	void *mbhc_calibration;
+#endif
 
 	rtd = snd_soc_get_pcm_runtime(card, be_dl_name);
 	if (!rtd) {
@@ -6394,6 +6455,7 @@ static int msm_snd_card_tavil_late_probe(struct snd_soc_card *card)
 		goto err_pcm_runtime;
 	}
 
+#ifdef USE_QC_MBHC
 	mbhc_calibration = def_tavil_mbhc_cal();
 	if (!mbhc_calibration) {
 		ret = -ENOMEM;
@@ -6406,11 +6468,15 @@ static int msm_snd_card_tavil_late_probe(struct snd_soc_card *card)
 			__func__, ret);
 		goto err_hs_detect;
 	}
+#endif
+
 	return 0;
 
+#ifdef USE_QC_MBHC
 err_hs_detect:
 	kfree(mbhc_calibration);
 err_mbhc_cal:
+#endif
 err_pcm_runtime:
 	return ret;
 }
@@ -6531,6 +6597,7 @@ static int msm_prepare_hac_amp(struct snd_soc_card *card)
 	return ret;
 }
 
+#ifdef USE_QC_MBHC
 static int msm_prepare_us_euro(struct snd_soc_card *card)
 {
 	struct msm_asoc_mach_data *pdata =
@@ -6550,6 +6617,7 @@ static int msm_prepare_us_euro(struct snd_soc_card *card)
 
 	return ret;
 }
+#endif
 
 static int msm_audrx_stub_init(struct snd_soc_pcm_runtime *rtd)
 {
@@ -6834,6 +6902,7 @@ static struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 	return card;
 }
 
+#ifdef USE_QC_SPK_AMP
 static int msm_wsa881x_init(struct snd_soc_component *component)
 {
 	u8 spkleft_ports[WSA881X_MAX_SWR_PORTS] = {100, 101, 102, 106};
@@ -7073,6 +7142,7 @@ err_mem:
 err_dt:
 	return ret;
 }
+#endif
 
 static void i2s_auxpcm_init(struct platform_device *pdev)
 {
@@ -7140,7 +7210,9 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card;
 	struct msm_asoc_mach_data *pdata;
+#ifdef USE_QC_MBHC
 	const char *mbhc_audio_jack_type = NULL;
+#endif
 	char *mclk_freq_prop_name;
 	const struct of_device_id *match;
 	int ret;
@@ -7214,9 +7286,12 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 		ret = -EPROBE_DEFER;
 		goto err;
 	}
+
+#ifdef USE_QC_SPK_AMP
 	ret = msm_init_wsa_dev(pdev, card);
 	if (ret)
 		goto err;
+#endif
 
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret == -EPROBE_DEFER) {
@@ -7231,6 +7306,7 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "Sound card %s registered\n", card->name);
 	spdev = pdev;
 
+#ifdef USE_QC_HIFI_AMP
 	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
 	if (ret) {
 		dev_dbg(&pdev->dev, "%s: failed to add child nodes, ret=%d\n",
@@ -7252,7 +7328,9 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 				pdev->dev.of_node->full_name);
 		}
 	}
+#endif
 
+#ifdef USE_QC_MBHC
 	ret = of_property_read_string(pdev->dev.of_node,
 		"qcom,mbhc-audio-jack-type", &mbhc_audio_jack_type);
 	if (ret) {
@@ -7298,7 +7376,7 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	if (ret)
 		dev_dbg(&pdev->dev, "msm_prepare_us_euro failed (%d)\n",
 			ret);
-
+#endif
 
 	i2s_auxpcm_init(pdev);
 
@@ -7334,13 +7412,14 @@ err:
 		gpio_free(pdata->hac_amp_en_gpio);
 		pdata->hac_amp_en_gpio = 0;
 	}
+#ifdef USE_QC_MBHC
 	if (pdata->us_euro_gpio > 0) {
 		dev_dbg(&pdev->dev, "%s free us_euro gpio %d\n",
 			__func__, pdata->us_euro_gpio);
 		gpio_free(pdata->us_euro_gpio);
 		pdata->us_euro_gpio = 0;
 	}
-
+#endif
 	devm_kfree(&pdev->dev, pdata);
 	return ret;
 }
@@ -7352,7 +7431,9 @@ static int msm_asoc_machine_remove(struct platform_device *pdev)
 				snd_soc_card_get_drvdata(card);
 
 	gpio_free(pdata->hac_amp_en_gpio);
+#ifdef USE_QC_MBHC
 	gpio_free(pdata->us_euro_gpio);
+#endif
 	i2s_auxpcm_deinit();
 
 	snd_soc_unregister_card(card);
