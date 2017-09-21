@@ -37,6 +37,10 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 
+#ifdef CONFIG_BOARD_MATA
+#include <essential/essential_mem.h>
+#endif
+
 #define RAMOOPS_KERNMSG_HDR "===="
 #define MIN_MEM_SIZE 4096UL
 
@@ -778,6 +782,14 @@ static void ramoops_register_dummy(void)
 
 static int __init ramoops_init(void)
 {
+	#ifdef CONFIG_BOARD_MATA
+	ramoops_console_size = 256 * 1024UL;
+	ramoops_ftrace_size = 256 * 1024UL;
+	ramoops_pmsg_size = 512 * 1024UL;
+	mem_address = ESSENTIAL_MEM_PSTORE_ADDR;
+	mem_size = ESSENTIAL_MEM_PSTORE_SIZE;
+	#endif
+
 	ramoops_register_dummy();
 	return platform_driver_register(&ramoops_driver);
 }
