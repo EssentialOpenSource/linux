@@ -430,6 +430,16 @@
 		clocks = <&clock_gcc clk_ln_bb_clk3_pin>;
 		clock-names = "ref_clk";
 	};
+	felica:nfc@0x28 {
+		compatible = "sony,cxd224x-i2c";
+		status = "disabled";
+		reg = <0x28>;
+		clock-frequency = <400000>;
+		sony,nfc_int = <&tlmm 122 0x00>;
+		sony,nfc_rst = <&tlmm 108 0x00>;
+		sony,nfc_wake = <&tlmm 21 0x00>;
+		sony,nfc_ven = <&tlmm 92 0x00>;
+	};
 };
 
 &i2c_9 {

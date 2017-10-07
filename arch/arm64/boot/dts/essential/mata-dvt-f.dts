@@ -71,3 +71,10 @@
 	regulator-name = "qcom,smb138x-vbus";
 };
 
+&nq {
+	status = "disabled";
+};
+
+&felica {
+	status = "okay";
+};
