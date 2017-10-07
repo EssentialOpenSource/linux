@@ -437,8 +437,13 @@
 		clock-frequency = <400000>;
 		sony,nfc_int = <&tlmm 122 0x00>;
 		sony,nfc_rst = <&tlmm 108 0x00>;
-		sony,nfc_wake = <&tlmm 21 0x00>;
+		sony,nfc_wake = <&tlmm 12 0x00>;
 		sony,nfc_ven = <&tlmm 92 0x00>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <122 2>;
+		interrupt-names = "nfc_irq";
+		pinctrl-names = "nfc_active";
+		pinctrl-0 = <&msm8998_gpio122_default &msm8998_gpio108_default &msm8998_gpio12_active &msm8998_gpio92_active>;
 	};
 };
 
