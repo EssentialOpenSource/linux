@@ -313,9 +313,9 @@ static long cxd224x_dev_unlocked_ioctl(struct file *filp,
 	case CXDNFC_POWER_CTL:
 #if defined(CONFIG_NFC_CXD224X_VEN) || defined(CONFIG_NFC_CXD224X_VEN_MODULE)
 		if (arg == 0) {
-			gpio_set_value(cxd224x_dev->en_gpio, 1);
+			gpio_set_value(cxd224x_dev->gpio->en_gpio, 1);
 		} else if (arg == 1) {
-			gpio_set_value(cxd224x_dev->en_gpio, 0);  
+			gpio_set_value(cxd224x_dev->gpio->en_gpio, 0);
 		} else {
 			/* do nothing */
 		}
