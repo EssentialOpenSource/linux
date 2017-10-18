@@ -288,7 +288,7 @@ static void sidecar_work_func(struct work_struct *work)
 			}
 		}
 	} else {
-		pr_debug("%s: not accessory connected\n", DEV_NAME);
+		pr_info("%s: not accessory connected (over-current: %d)\n", DEV_NAME, pdata->under_overcurrent);
 		gpio_set_value(pdata->ks_source_en, 0);
 		gpio_set_value(pdata->ks_sink_en, 0);
 		if (pdata->is_connected) {
