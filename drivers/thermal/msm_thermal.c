@@ -53,6 +53,10 @@
 
 #include <asm/cacheflush.h>
 
+#ifdef CONFIG_ESSENTIAL_APR
+#include <essential/essential_reason.h>
+#endif
+
 #define CREATE_TRACE_POINTS
 #define TRACE_MSM_THERMAL
 #include <trace/trace_thermal.h>
@@ -2849,6 +2853,10 @@ static void msm_thermal_bite(int zone_id, int temp)
 	struct scm_desc desc;
 	int tsens_id = 0;
 	int ret = 0;
+
+#ifdef CONFIG_ESSENTIAL_APR
+	qpnp_pon_set_restart_reason(REASON_OVER_TEMPERATURE);
+#endif
 
 	ret = zone_id_to_tsen_id(zone_id, &tsens_id);
 	if (ret < 0) {

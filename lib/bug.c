@@ -46,6 +46,10 @@
 #include <linux/bug.h>
 #include <linux/sched.h>
 
+#ifdef CONFIG_ESSENTIAL_APR
+#include <essential/essential_reason.h>
+#endif
+
 extern const struct bug_entry __start___bug_table[], __stop___bug_table[];
 
 static inline unsigned long bug_addr(const struct bug_entry *bug)
@@ -184,6 +188,10 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 	}
 
 	printk(KERN_DEFAULT "------------[ cut here ]------------\n");
+
+#ifdef CONFIG_ESSENTIAL_APR
+	qpnp_pon_set_restart_reason(REASON_KERNEL_BUG);
+#endif
 
 	if (file)
 		pr_crit("kernel BUG at %s:%u!\n", file, line);
