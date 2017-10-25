@@ -4,7 +4,7 @@ qcom,mata_3040mah_evt2 {
 	qcom,max-voltage-uv = <4400000>;
 	qcom,nom-batt-capacity-mah = <3040>;
 	qcom,fg-cc-cv-threshold-mv = <4390>;
-	qcom,fastchg-current-ma = <2000>;
+	qcom,fastchg-current-ma = <2500>;
 	qcom,batt-id-kohm = <51>;
 	qcom,battery-beta = <3435>;
 	qcom,battery-type = "mata_3040mah_evt2";
