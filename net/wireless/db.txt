@@ -3,8 +3,6 @@ country 00:
 	(2402 - 2472 @ 40), (20)
 	# Channel 12 - 13.
 	(2457 - 2482 @ 40), (20), PASSIVE-SCAN, NO-IBSS
-	# Channel 14. Only JP enables this and for 802.11b only
-	(2474 - 2494 @ 20), (20), PASSIVE-SCAN, NO-IBSS, NO-OFDM
 	# Channel 36 - 48
 	(5170 - 5250 @ 80), (20), PASSIVE-SCAN, NO-IBSS
 	(5250 - 5330 @ 80), (20), PASSIVE-SCAN, NO-IBSS
@@ -737,7 +735,6 @@ country JO:
 
 country JP: DFS-JP
 	(2402 - 2482 @ 40), (20)
-	(2474 - 2494 @ 20), (20), NO-OFDM
 	(5170 - 5250 @ 80), (20), AUTO-BW, NO-OUTDOOR
 	(5250 - 5330 @ 80), (20), DFS, AUTO-BW, NO-OUTDOOR
 	(5490 - 5710 @ 160), (20), DFS
@@ -1502,7 +1499,6 @@ country WS: DFS-ETSI
 
 country XA: DFS-JP
 	(2402 - 2482 @ 40), (20)
-	(2474 - 2494 @ 20), (20), NO-OFDM
 	(5170 - 5250 @ 80), (20), NO-IR, AUTO-BW, NO-OUTDOOR
 	(5250 - 5330 @ 80), (20), DFS, AUTO-BW, NO-OUTDOOR
 	(5490 - 5710 @ 160), (20), DFS
