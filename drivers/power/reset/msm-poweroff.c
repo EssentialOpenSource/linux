@@ -340,6 +340,9 @@ static void msm_restart_prepare(const char *cmd)
 		} else if (!strncmp(cmd, "edl", 3)) {
 			enable_emergency_dload_mode();
 		} else {
+#ifdef CONFIG_ESSENTIAL_APR
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_UNKNOWN);
+#endif
 			__raw_writel(0x77665501, restart_reason);
 		}
 	}
@@ -364,8 +367,6 @@ static void msm_restart_prepare(const char *cmd)
 			need_warm_reset = true;
 			qpnp_pon_set_restart_reason(REASON_UNKNOWN_RESET);
 			__raw_writel(0x520D450D, restart_reason);
-		} else {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_UNKNOWN);
 		}
 	}
 
