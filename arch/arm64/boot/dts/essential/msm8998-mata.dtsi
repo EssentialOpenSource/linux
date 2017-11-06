@@ -1599,3 +1599,10 @@
 				0xf8 0x21c /* IMP_CTRL1*/
 				0x19 0xb4>; /* digital_timers_two */
 };
+
+&pmi8998_pdphy {
+	qcom,default-sink-caps = <5000 3000>, /* 5V @ 3A */
+				 <6000 3000>, /* 6V @ 3A */
+				 <7000 3000>, /* 7V @ 3A */
+				 <9000 3000>; /* 9V @ 3A */
+};
