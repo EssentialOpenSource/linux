@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VL53L0_TUNING_H_
 #define _VL53L0_TUNING_H_
 
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 
 
 #ifdef __cplusplus

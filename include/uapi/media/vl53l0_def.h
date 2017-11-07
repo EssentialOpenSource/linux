@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2016, STMicroelectronics International N.V.
+ * Copyright ï¿½ 2016, STMicroelectronics International N.V.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -87,8 +87,25 @@ extern "C" {
 #define VL53L0_MAX_STRING_LENGTH 32
 
 
-#include "vl53l0_device.h"
-#include "vl53l0_types.h"
+/*
+ * IOCTL definitions
+ */
+#define VL53L0_IOCTL_INIT     _IO('p', 0x01)
+#define VL53L0_IOCTL_XTALKCALB    _IOW('p', 0x02, unsigned int)
+#define VL53L0_IOCTL_OFFCALB    _IOW('p', 0x03, unsigned int)
+#define VL53L0_IOCTL_STOP     _IO('p', 0x05)
+#define VL53L0_IOCTL_SETXTALK   _IOW('p', 0x06, unsigned int)
+#define VL53L0_IOCTL_SETOFFSET    _IOW('p', 0x07, int8_t)
+#define VL53L0_IOCTL_GETDATAS \
+      _IOWR('p', 0x0b, VL53L0_RangingMeasurementData_t)
+#define VL53L0_IOCTL_REGISTER \
+      _IOWR('p', 0x0c, struct stmvl53l0_register)
+#define VL53L0_IOCTL_PARAMETER \
+      _IOWR('p', 0x0d, struct stmvl53l0_parameter)
+
+
+#include <media/vl53l0_device.h>
+#include <media/vl53l0_types.h>
 
 
 /****************************************

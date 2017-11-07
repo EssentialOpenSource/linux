@@ -25,7 +25,7 @@
 #ifndef _VL53L0_I2C_PLATFORM_H_
 #define _VL53L0_I2C_PLATFORM_H_
 
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 
 
 /** Maximum buffer size to be used in i2c */

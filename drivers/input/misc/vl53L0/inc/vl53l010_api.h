@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vl53l010_device.h"
 #include "vl53l010_strings.h"
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform.h"
 
 

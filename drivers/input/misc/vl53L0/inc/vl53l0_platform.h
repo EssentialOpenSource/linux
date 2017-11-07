@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _VL53L0_PLATFORM_H_
 
 #include <linux/delay.h>
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform_log.h"
 
 #include "stmvl53l0-i2c.h"

@@ -42,7 +42,7 @@
  * API includes
  */
 #include "vl53l0_api.h"
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform.h"
 #include "stmvl53l0-i2c.h"
 #include "stmvl53l0-cci.h"
@@ -83,33 +83,34 @@ static int stmvl53l0_pinctrl_init(struct i2c_client *client) {
 	vl53l0_dbgmsg("Enter\n");
 
 	vl53l0_dbgmsg("[STM VL5310] %s start \n", __func__);
-	/* Get pinctrl if target uses pinctrl */
-	data->ts_pinctrl = devm_pinctrl_get((&(client->dev)));
-	if (IS_ERR_OR_NULL(data->ts_pinctrl)) {
-		rc = PTR_ERR(data->ts_pinctrl);
-		pr_err("Target does not use pinctrl %d\n", rc);
-		goto err_pinctrl_get;
-	}
+    /* Get pinctrl if target uses pinctrl */
+    data->ts_pinctrl = devm_pinctrl_get((&(client->dev)));
+    if (IS_ERR_OR_NULL(data->ts_pinctrl)) {
+        rc = PTR_ERR(data->ts_pinctrl);
+        pr_err("Target does not use pinctrl %d\n", rc);
+        goto err_pinctrl_get;
+    }
 
-	data->pinctrl_state_active
-		= pinctrl_lookup_state(data->ts_pinctrl, "vl53l0_en_active");
-	if (IS_ERR_OR_NULL(data->pinctrl_state_active)) {
-		rc = PTR_ERR(data->pinctrl_state_active);
-		dev_err(&client->dev, "Can not lookup %s pinstate %d\n", PINCTRL_STATE_ACTIVE, rc);
-		goto err_pinctrl_lookup;
-	}
+    data->pinctrl_state_active
+        = pinctrl_lookup_state(data->ts_pinctrl, "vl53l0_en_active");
+    if (IS_ERR_OR_NULL(data->pinctrl_state_active)) {
+        rc = PTR_ERR(data->pinctrl_state_active);
+        dev_err(&client->dev, "Can not lookup %s pinstate %d\n", PINCTRL_STATE_ACTIVE, rc);
+        goto err_pinctrl_lookup;
+    }
 
-	return 0;
+    return 0;
 
 err_pinctrl_lookup:
-	devm_pinctrl_put(data->ts_pinctrl);
+    devm_pinctrl_put(data->ts_pinctrl);
 err_pinctrl_get:
-	data->ts_pinctrl = NULL;
-	return rc;
+    data->ts_pinctrl = NULL;
+    return rc;
+
 }
 
 static int stmvl53l0_probe(struct i2c_client *client,
-			   const struct i2c_device_id *id)
+				   const struct i2c_device_id *id)
 {
 	int rc = 0;
 	struct stmvl53l0_data *vl53l0_data = NULL;
@@ -121,6 +122,7 @@ static int stmvl53l0_probe(struct i2c_client *client,
 		vl53l0_dbgmsg("fail at %s, %d \n", __func__, __LINE__);
 		rc = -EIO;
 		goto END;
+		//return rc;
 	}
 
 	vl53l0_data = kzalloc(sizeof(struct stmvl53l0_data), GFP_KERNEL);
@@ -128,26 +130,17 @@ static int stmvl53l0_probe(struct i2c_client *client,
 		vl53l0_dbgmsg("fail at %s, %d \n", __func__, __LINE__);
 		rc = -ENOMEM;
 		goto END;
+		//return rc;
 	}
 	if (vl53l0_data) {
 		vl53l0_data->client_object =
-		    kzalloc(sizeof(struct i2c_data), GFP_KERNEL);
+			kzalloc(sizeof(struct i2c_data), GFP_KERNEL);
 		i2c_object = (struct i2c_data *)vl53l0_data->client_object;
 	}
 	i2c_object->client = client;
 
 	/* setup bus type */
 	vl53l0_data->bus_type = I2C_BUS;
-
-	vl53l0_data->irq_gpio = of_get_named_gpio_flags(i2c_object->client->dev.of_node,
-		"stm,irq-gpio", 0, NULL);
-
-	if (!gpio_is_valid(vl53l0_data->irq_gpio)) {
-		vl53l0_errmsg("%d failed get irq gpio", __LINE__);
-		kfree(vl53l0_data->client_object);
-		kfree(vl53l0_data);
-		return -EINVAL;
-	}
 
 	/* setup regulator */
 	rc = stmvl53l0_parse_vdd(&i2c_object->client->dev, i2c_object);
@@ -213,25 +206,24 @@ static int stmvl53l0_remove(struct i2c_client *client)
 }
 
 static const struct i2c_device_id stmvl53l0_id[] = {
-	{STMVL53L0_DRV_NAME, 0},
-	{},
+	{ STMVL53L0_DRV_NAME, 0 },
+	{ },
 };
-
 MODULE_DEVICE_TABLE(i2c, stmvl53l0_id);
 
 static const struct of_device_id st_stmvl53l0_dt_match[] = {
-	{.compatible = "st,stmvl53l0",},
-	{},
+	{ .compatible = "st,stmvl53l0", },
+	{ },
 };
 
 static struct i2c_driver stmvl53l0_driver = {
 	.driver = {
-		   .name = STMVL53L0_DRV_NAME,
-		   .owner = THIS_MODULE,
-		   .of_match_table = st_stmvl53l0_dt_match,
-		   },
-	.probe = stmvl53l0_probe,
-	.remove = stmvl53l0_remove,
+		.name	= STMVL53L0_DRV_NAME,
+		.owner	= THIS_MODULE,
+		.of_match_table = st_stmvl53l0_dt_match,
+	},
+	.probe	= stmvl53l0_probe,
+	.remove	= stmvl53l0_remove,
 	.id_table = stmvl53l0_id,
 
 };
@@ -249,6 +241,11 @@ int stmvl53l0_power_up_i2c(void *i2c_object, unsigned int *preset_flag)
 
 	/* actual power on */
 #ifndef STM_TEST
+	//ret = regulator_set_voltage(data->vana,	VL53L0_VDD_MIN, VL53L0_VDD_MAX);
+	//if (ret < 0) {
+	//	vl53l0_errmsg("set_vol(%p) fail %d\n", data->vana , ret);
+	//	return ret;
+	//}
 	ret = regulator_enable(data->vana);
 	msleep(3);
 	if (ret < 0) {
@@ -279,7 +276,7 @@ int stmvl53l0_power_down_i2c(void *i2c_object)
 	ret = regulator_disable(data->vana);
 	if (ret < 0)
 		vl53l0_errmsg("reg disable(%p) failed.rc=%d\n",
-			      data->vana, ret);
+			data->vana, ret);
 
 	data->power_up = 0;
 	gpio_direction_output(vl53l0_data->en_gpio, 0);
@@ -334,4 +331,4 @@ void stmvl53l0_exit_i2c(void *i2c_object)
 	vl53l0_dbgmsg("End\n");
 }
 
-#endif				/* end of NOT CAMERA_CCI */
+#endif /* end of NOT CAMERA_CCI */

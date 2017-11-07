@@ -27,7 +27,7 @@
 
 #include "vl53l0_platform.h"
 #include "vl53l0_i2c_platform.h"
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 
 #include "vl53l0_platform_log.h"
 

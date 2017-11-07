@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VL53L010_DEVICE_H_
 #define _VL53L010_DEVICE_H_
 
-#include "vl53l0_types.h"
+#include <media/vl53l0_types.h>
 
 /** @defgroup VL53L010_SpecDefines_group VL53L010 cut1.0 Device Specific Defines
  *  @brief VL53L010 cut1.0 Device Specific Defines

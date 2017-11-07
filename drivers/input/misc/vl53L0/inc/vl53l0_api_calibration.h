@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VL53L0_API_CALIBRATION_H_
 #define _VL53L0_API_CALIBRATION_H_
 
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform.h"
 
 

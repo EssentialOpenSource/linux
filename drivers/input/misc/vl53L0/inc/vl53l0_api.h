@@ -30,7 +30,7 @@
 #define _VL53L0_API_H_
 
 #include "vl53l0_api_strings.h"
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform.h"
 
 #ifdef __cplusplus

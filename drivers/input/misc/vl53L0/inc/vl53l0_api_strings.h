@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef VL53L0_API_STRINGS_H_
 #define VL53L0_API_STRINGS_H_
 
-#include "vl53l0_def.h"
+#include <media/vl53l0_def.h>
 #include "vl53l0_platform.h"
 
 #ifdef __cplusplus

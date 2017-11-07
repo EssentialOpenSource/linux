@@ -48,9 +48,6 @@ struct cci_data {
 	char subdev_initialized;
 	uint32_t subdev_id;
 	uint8_t power_up;
-	struct msm_camera_gpio_conf *gconf;
-	struct msm_pinctrl_info pinctrl_info;
-	uint8_t cam_pinctrl_status;
 };
 
 int stmvl53l0_init_cci(void);
