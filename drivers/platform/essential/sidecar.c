@@ -322,8 +322,7 @@ static irqreturn_t sidecar_irq_overcur_handle(int irq, void *info)
 
 	if (gpio_get_value(pdata->irq_overcurrent)) {
 		pdata->under_overcurrent = 0;
-		pr_err("%s: overcurrent solved - Restore status\n", DEV_NAME);
-		schedule_work(&pdata->dwork);
+		pr_err("%s: overcurrent solved\n", DEV_NAME);
 	} else {
 		pdata->under_overcurrent = 1;
 		/* Shutdown the powers on overcurrent */
