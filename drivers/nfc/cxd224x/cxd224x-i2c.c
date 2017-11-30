@@ -85,6 +85,11 @@ struct cxd224x_dev {
 	struct work_struct qmsg;
 };
 
+
+static bool disable;
+module_param_named(disable,
+	disable, bool, S_IRUGO);
+
 #if defined(CONFIG_NFC_CXD224X_RST) || defined(CONFIG_NFC_CXD224X_RST_MODULE)
 static void cxd224x_workqueue(struct work_struct *work)
 {
@@ -415,6 +420,11 @@ static int cxd224x_probe(struct i2c_client *client,
 	int rst_gpio_ok = 0;
 #endif
 	int wake_gpio_ok = 0;
+
+	if (disable) {
+		dev_err(&client->dev, "NFC disabled by bootargs\n");
+		return -ENODEV;
+	}
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		dev_err(&client->dev, "need I2C_FUNC_I2C\n");
