@@ -14,7 +14,8 @@ CFLAGS_KASAN := $(call cc-option, -fsanitize=kernel-address \
 		-mllvm \
 		-asan-mapping-offset=$(KASAN_SHADOW_OFFSET) \
 		-asan-stack=1 -asan-globals=1 \
-		-asan-instrumentation-with-call-threshold=$(call_threshold))
+		-asan-instrumentation-with-call-threshold=$(call_threshold) \
+		-asan-instrument-allocas=1)
 else
 CFLAGS_KASAN := $(call cc-option, -fsanitize=kernel-address \
 		-fasan-shadow-offset=$(KASAN_SHADOW_OFFSET) \
