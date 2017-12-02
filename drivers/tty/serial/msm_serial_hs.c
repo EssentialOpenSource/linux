@@ -294,8 +294,6 @@ static struct msm_hs_port *msm_hs_get_hs_port(int port_index);
 static void msm_hs_queue_rx_desc(struct msm_hs_port *msm_uport);
 static int disconnect_rx_endpoint(struct msm_hs_port *msm_uport);
 static int msm_hs_pm_resume(struct device *dev);
-static void msm_hs_pm_suspend(struct device *dev);
-
 
 #define UARTDM_TO_MSM(uart_port) \
 	container_of((uart_port), struct msm_hs_port, uport)
@@ -396,8 +394,6 @@ static void msm_hs_resource_unvote(struct msm_hs_port *msm_uport)
 {
 	struct uart_port *uport = &(msm_uport->uport);
 	int rc = atomic_read(&msm_uport->resource_count);
-	struct msm_hs_tx *tx = &msm_uport->tx;
-	struct msm_hs_rx *rx = &msm_uport->rx;
 
 	MSM_HS_DBG("%s(): power usage count %d", __func__, rc);
 	if (rc <= 0) {
@@ -406,15 +402,8 @@ static void msm_hs_resource_unvote(struct msm_hs_port *msm_uport)
 		return;
 	}
 	atomic_dec(&msm_uport->resource_count);
-
-	if (pm_runtime_enabled(uport->dev)) {
-		pm_runtime_mark_last_busy(uport->dev);
-		pm_runtime_put_autosuspend(uport->dev);
-	} else {
-		MSM_HS_DBG("%s():tx.flush:%d,in_flight:%d,rx.flush:%d\n",
-		__func__, tx->flush, tx->dma_in_flight, rx->flush);
-		msm_hs_pm_suspend(uport->dev);
-	}
+	pm_runtime_mark_last_busy(uport->dev);
+	pm_runtime_put_autosuspend(uport->dev);
 }
 
  /* Vote for resources before accessing them */
