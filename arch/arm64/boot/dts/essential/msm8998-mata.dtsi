@@ -168,6 +168,7 @@
 	qcom,fg-jeita-thresholds = <0 20 45 58>;
 	qcom,fg-auto-recharge-soc;
 	qcom,hold-soc-while-full;
+	qcom,linearize-soc;
 };
 
 &pm8998_gpios {
