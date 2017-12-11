@@ -609,3 +609,7 @@
 &pmi8998_fg {
 	qcom,battery-data = <&mtp_batterydata>;
 };
+
+&pmi8998_charger {
+	qcom,dc-is-wipower;
+};

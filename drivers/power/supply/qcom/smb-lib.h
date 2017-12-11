@@ -353,6 +353,9 @@ struct smb_charger {
 	/* qnovo */
 	int			usb_icl_delta_ua;
 	int			pulse_cnt;
+
+	/* wipower */
+	bool			dc_is_wipower;
 };
 
 int smblib_read(struct smb_charger *chg, u16 addr, u8 *val);
@@ -397,6 +400,7 @@ irqreturn_t smblib_handle_usb_plugin(int irq, void *data);
 irqreturn_t smblib_handle_usb_source_change(int irq, void *data);
 irqreturn_t smblib_handle_icl_change(int irq, void *data);
 irqreturn_t smblib_handle_usb_typec_change(int irq, void *data);
+irqreturn_t smblib_handle_dcin_uv(int irq, void *data);
 irqreturn_t smblib_handle_dc_plugin(int irq, void *data);
 irqreturn_t smblib_handle_high_duty_cycle(int irq, void *data);
 irqreturn_t smblib_handle_switcher_power_ok(int irq, void *data);

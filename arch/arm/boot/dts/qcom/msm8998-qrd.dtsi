@@ -630,3 +630,7 @@
 		/delete-property/ qcom,us-euro-gpios;
 	};
 };
+
+&pmi8998_charger {
+	qcom,dc-is-wipower;
+};

@@ -70,6 +70,12 @@ Charger specific properties:
   Definition: Specifies the boost current threshold in micro-amps.
 		If the value is not present, 100mA is used as default.
 
+- qcom,dc-is-wipower
+  Usage:      optional
+  Value type: <empty>
+  Definition: Boolean flag which indicates whether the dc input is connected
+		  to a Wipower charging system.
+
 - qcom,wipower-max-uw
   Usage:      optional
   Value type: <u32>

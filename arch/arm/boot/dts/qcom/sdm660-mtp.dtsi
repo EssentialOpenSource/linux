@@ -258,3 +258,7 @@
 		qcom,parallel-en-pin-polarity = <1>;
 	};
 };
+
+&pm660_charger {
+	qcom,dc-is-wipower;
+};
