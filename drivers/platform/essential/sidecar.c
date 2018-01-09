@@ -49,8 +49,8 @@ struct sidecar_platform_data {
 
 #define WAIT_IN_MS 400
 #define SLEEP_READ 5
-#define DEBOUNCE_COUNT 10
-#define DEBOUNCE_THRESHOLD 7
+#define DEBOUNCE_COUNT 40
+#define DEBOUNCE_THRESHOLD 30
 
 enum {
 	POWER_CONTROL = 0,
@@ -245,7 +245,7 @@ static void sidecar_work_func(struct work_struct *work)
 	mutex_lock(&pdata->work_func_lock);
 
 	/* Waiting for attaching accessory then determine charging or discharging
-	 * 50 ms */
+	 * 200 ms */
 	for (i = 0; i < DEBOUNCE_COUNT; i++) {
 		cnt_debounce += gpio_get_value(pdata->irq_gpio);
 		msleep(SLEEP_READ);
