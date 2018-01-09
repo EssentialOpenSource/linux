@@ -562,6 +562,21 @@ static int fg_get_charge_raw(struct fg_chip *chip, int *val)
 	return 0;
 }
 
+#define BATT_SOC_32BIT	GENMASK(31, 0)
+static int fg_get_charge_counter_shadow(struct fg_chip *chip, int *val)
+{
+	int rc, batt_soc;
+
+	rc = fg_get_sram_prop(chip, FG_SRAM_BATT_SOC, &batt_soc);
+	if (rc < 0) {
+		pr_err("Error in getting BATT_SOC, rc=%d\n", rc);
+		return rc;
+	}
+
+	*val = div_u64((u32)batt_soc * chip->cl.learned_cc_uah, BATT_SOC_32BIT);
+	return 0;
+}
+
 static int fg_get_charge_counter(struct fg_chip *chip, int *val)
 {
 	int rc, cc_soc;
@@ -1220,6 +1235,43 @@ static bool is_parallel_charger_available(struct fg_chip *chip)
 	return true;
 }
 
+static void fg_prime_cc_soc_sw(struct fg_chip *chip)
+{
+	int rc, batt_soc, cc_soc_sw = 0;
+
+	/* If capacity learning is active, don't do anything */
+	if (chip->cl.active)
+		return;
+
+	/* Do nothing if charge_status doesn't change */
+	if (chip->charge_status == chip->prev_charge_status)
+		return;
+
+	/* Prime cc_soc_sw based off charging status */
+	if (chip->charge_status == POWER_SUPPLY_STATUS_DISCHARGING) {
+		rc = fg_get_sram_prop(chip, FG_SRAM_BATT_SOC, &batt_soc);
+		if (rc < 0) {
+			pr_err("Error in getting BATT_SOC, rc=%d\n", rc);
+			return;
+		}
+		cc_soc_sw = div_u64((u32)batt_soc * CC_SOC_30BIT,
+					BATT_SOC_32BIT);
+	} else if (chip->charge_done) {
+		cc_soc_sw = CC_SOC_30BIT;
+	}
+
+	if (!cc_soc_sw)
+		return;
+
+	rc = fg_sram_write(chip, chip->sp[FG_SRAM_CC_SOC_SW].addr_word,
+		chip->sp[FG_SRAM_CC_SOC_SW].addr_byte, (u8 *)&cc_soc_sw,
+		chip->sp[FG_SRAM_CC_SOC_SW].len, FG_IMA_ATOMIC);
+	if (rc < 0)
+		pr_err("Error in writing cc_soc_sw, rc=%d\n", rc);
+	else
+		fg_dbg(chip, FG_STATUS, "cc_soc_sw: %x\n", cc_soc_sw);
+}
+
 static int fg_save_learned_cap_to_sram(struct fg_chip *chip)
 {
 	int16_t cc_mah;
@@ -1405,7 +1457,6 @@ static int fg_cap_learning_process_full_data(struct fg_chip *chip)
 	return 0;
 }
 
-#define BATT_SOC_32BIT	GENMASK(31, 0)
 static int fg_cap_learning_begin(struct fg_chip *chip, u32 batt_soc)
 {
 	int rc, cc_soc_sw, batt_soc_msb;
@@ -2461,6 +2512,7 @@ static void status_change_work(struct work_struct *work)
 
 	chip->charge_done = prop.intval;
 	fg_cycle_counter_update(chip);
+	fg_prime_cc_soc_sw(chip);
 	fg_cap_learning_update(chip);
 
 	rc = fg_charge_full_update(chip);
@@ -2497,7 +2549,7 @@ static void status_change_work(struct work_struct *work)
 	}
 
 	fg_ttf_update(chip);
-
+	chip->prev_charge_status = chip->charge_status;
 out:
 	fg_dbg(chip, FG_POWER_SUPPLY, "charge_status:%d charge_type:%d charge_done:%d\n",
 		chip->charge_status, chip->charge_type, chip->charge_done);
@@ -3435,6 +3487,9 @@ static int fg_psy_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_COUNTER:
 		rc = fg_get_charge_counter(chip, &pval->intval);
 		break;
+	case POWER_SUPPLY_PROP_CHARGE_COUNTER_SHADOW:
+		rc = fg_get_charge_counter_shadow(chip, &pval->intval);
+		break;
 	case POWER_SUPPLY_PROP_TIME_TO_FULL_AVG:
 		rc = fg_get_time_to_full(chip, &pval->intval);
 		break;
@@ -3593,6 +3648,7 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_CHARGE_NOW,
 	POWER_SUPPLY_PROP_CHARGE_FULL,
 	POWER_SUPPLY_PROP_CHARGE_COUNTER,
+	POWER_SUPPLY_PROP_CHARGE_COUNTER_SHADOW,
 	POWER_SUPPLY_PROP_TIME_TO_FULL_AVG,
 	POWER_SUPPLY_PROP_TIME_TO_EMPTY_AVG,
 	POWER_SUPPLY_PROP_SOC_REPORTING_READY,
@@ -4789,6 +4845,7 @@ static int fg_gen3_probe(struct platform_device *pdev)
 	chip->debug_mask = &fg_gen3_debug_mask;
 	chip->irqs = fg_irqs;
 	chip->charge_status = -EINVAL;
+	chip->prev_charge_status = -EINVAL;
 	chip->ki_coeff_full_soc = -EINVAL;
 	chip->online_status = -EINVAL;
 	chip->regmap = dev_get_regmap(chip->dev->parent, NULL);
