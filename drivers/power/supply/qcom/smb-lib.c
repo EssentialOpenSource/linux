@@ -2157,6 +2157,21 @@ int smblib_set_prop_dc_current_max(struct smb_charger *chg,
 	return rc;
 }
 
+int smblib_set_prop_dc_suspend(struct smb_charger *chg,
+				    const union power_supply_propval *val)
+{
+	int rc;
+
+	rc = vote(chg->dc_suspend_votable, BOOST_BACK_VOTER, (bool)val->intval, 0);
+	if (rc < 0) {
+		smblib_err(chg, "Couldn't vote to %s DC rc=%d\n",
+			(bool)val->intval ? "suspend" : "resume", rc);
+		return rc;
+	}
+	return rc;
+}
+
+
 /*******************
  * USB PSY GETTERS *
  *******************/

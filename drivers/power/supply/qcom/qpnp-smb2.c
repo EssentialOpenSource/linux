@@ -844,6 +844,9 @@ static int smb2_dc_set_prop(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		rc = smblib_set_prop_dc_current_max(chg, val);
 		break;
+	case POWER_SUPPLY_PROP_INPUT_SUSPEND:
+		rc = smblib_set_prop_dc_suspend(chg, val);
+		break;
 	default:
 		return -EINVAL;
 	}
