@@ -762,6 +762,16 @@ struct usb_encryption_descriptor {
 	__u8  bAuthKeyIndex;
 } __attribute__((packed));
 
+/*
+ * Precision time measurement capability descriptor: advertised by devices and
+ * hubs that support PTM
+ */
+#define	USB_PTM_CAP_TYPE	0xb
+struct usb_ptm_cap_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+	__u8  bDevCapabilityType;
+} __attribute__((packed));
 
 /*-------------------------------------------------------------------------*/
 
