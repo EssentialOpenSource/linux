@@ -790,10 +790,6 @@ bool msm_gpio_irq_handler(struct irq_desc *desc)
 		if (val & BIT(g->intr_status_bit)) {
 			irq_pin = irq_find_mapping(gc->irqdomain, i);
 			handled += generic_handle_irq(irq_pin);
-			/* The first interrupt for pinctrl is
-			 * 202 (GPIO_0) - Handle 201 manually */
-			if (desc->irq_data.irq == 201)
-				handled++;
 		}
 	}
 	ret = (handled != 0);
