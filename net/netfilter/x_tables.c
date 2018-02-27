@@ -542,7 +542,7 @@ int xt_compat_calc_jump(u_int8_t af, unsigned int offset)
 }
 EXPORT_SYMBOL_GPL(xt_compat_calc_jump);
 
-void xt_compat_init_offsets(u_int8_t af, unsigned int number)
+int xt_compat_init_offsets(u8 af, unsigned int number)
 {
 	size_t mem;
 
@@ -562,6 +562,8 @@ void xt_compat_init_offsets(u_int8_t af, unsigned int number)
 
 	xt[af].number = number;
 	xt[af].cur = 0;
+
+	return 0;
 }
 EXPORT_SYMBOL(xt_compat_init_offsets);
 
