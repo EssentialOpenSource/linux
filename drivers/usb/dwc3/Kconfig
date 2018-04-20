@@ -104,4 +104,10 @@ config USB_DWC3_QCOM
 	  Recent Qualcomm SoCs ship with one DesignWare Core USB3 IP inside,
 	  say 'Y' or 'M' if you have one such device.
 
+config USB_DWC3_DEBUG_FS
+	tristate "DebugFS support"
+	default USB_DWC3
+	help
+	  Enable DebugFS entries for DWC3
+
 endif
