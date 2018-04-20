@@ -1,8 +1,4 @@
 dtb-$(CONFIG_ARCH_MSM8998) += \
-	mata-evb.dtb \
-	mata-evb2.dtb \
-	mata-evt2.dtb \
-	mata-evt3.dtb \
 	mata-evt4.dtb \
 	mata-evt4-f.dtb \
 	mata-dvt.dtb \
