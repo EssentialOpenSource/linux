@@ -1233,7 +1233,7 @@ static int reverse_path_check(void)
 
 static int ep_create_wakeup_source(struct epitem *epi)
 {
-	struct name_snapshot n;
+	const char *name;
 	struct wakeup_source *ws;
 
 	name = epi->ffd.file->f_path.dentry->d_name.name;
@@ -1245,9 +1245,7 @@ static int ep_create_wakeup_source(struct epitem *epi)
 			return -ENOMEM;
 	}
 
-	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
-	ws = wakeup_source_register(n.name);
-	release_dentry_name_snapshot(&n);
+	ws = wakeup_source_register(name);
 
 	if (!ws)
 		return -ENOMEM;

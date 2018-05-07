@@ -415,25 +415,27 @@ ENDPROC(__create_page_tables)
 /*
  * The following fragment of code is executed with the MMU enabled.
  */
-	.set	initial_sp, init_thread_union + THREAD_START_SP
-__mmap_switched:
-	adr_l	x6, __bss_start
-	adr_l	x7, __bss_stop
 
-1:	cmp	x6, x7
-	b.hs	2f
-	str	xzr, [x6], #8			// Clear BSS
-	b	1b
-2:
-	adrp	x4, initial_sp
-	add	sp, x4, :lo12:initial_sp
-	str_l	x21, __fdt_pointer, x5		// Save FDT pointer
+__primary_switched:
+	adrp	x4, init_thread_union
+	add	sp, x4, #THREAD_SIZE
+	msr	sp_el0, x4			// Save thread_info
 
-	ldr_l	x4, kimage_vaddr		// Save the offset between
-	sub	x4, x4, x24			// the kernel virtual and
-	str_l	x4, kimage_voffset, x5		// physical mappings
+	adr_l	x8, vectors			// load VBAR_EL1 with virtual
+	msr	vbar_el1, x8			// vector table address
+	isb
 
-	mov	x29, #0
+	stp	xzr, x30, [sp, #-16]!
+	mov	x29, sp
+
+	// Clear BSS
+	adr_l	x0, __bss_start
+	mov	x1, xzr
+	adr_l	x2, __bss_stop
+	sub	x2, x2, x0
+	bl	__pi_memset
+	dsb	ishst				// Make zero page visible to PTW
+
 #ifdef CONFIG_KASAN
 	bl	kasan_early_init
 #endif
@@ -445,8 +447,8 @@ __mmap_switched:
 	bl	kaslr_early_init		// parse FDT for KASLR options
 	cbz	x0, 0f				// KASLR disabled? just proceed
 	orr	x23, x23, x0			// record KASLR offset
-	ret	x28				// we must enable KASLR, return
-						// to __enable_mmu()
+	ldp	x29, x30, [sp], #16		// we must enable KASLR, return
+	ret					// to __primary_switch()
 0:
 #endif
 	b	start_kernel
