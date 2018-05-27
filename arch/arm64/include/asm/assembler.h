@@ -400,26 +400,6 @@ alternative_endif
 	mrs	\rd, sp_el0
 	.endm
 
-	/*
-	 * mov_q - move an immediate constant into a 64-bit register using
-	 *         between 2 and 4 movz/movk instructions (depending on the
-	 *         magnitude and sign of the operand)
-	 */
-	.macro	mov_q, reg, val
-	.if (((\val) >> 31) == 0 || ((\val) >> 31) == 0x1ffffffff)
-	movz	\reg, :abs_g1_s:\val
-	.else
-	.if (((\val) >> 47) == 0 || ((\val) >> 47) == 0x1ffff)
-	movz	\reg, :abs_g2_s:\val
-	.else
-	movz	\reg, :abs_g3:\val
-	movk	\reg, :abs_g2_nc:\val
-	.endif
-	movk	\reg, :abs_g1_nc:\val
-	.endif
-	movk	\reg, :abs_g0_nc:\val
-	.endm
-
 /*
  * Check the MIDR_EL1 of the current CPU for a given model and a range of
  * variant/revision. See asm/cputype.h for the macros used below.
