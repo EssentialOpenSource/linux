@@ -1163,6 +1163,16 @@ bool icnss_is_fw_ready(void)
 }
 EXPORT_SYMBOL(icnss_is_fw_ready);
 
+
+bool icnss_is_fw_down(void)
+{
+	if (!penv)
+		return false;
+	else
+		return test_bit(ICNSS_FW_DOWN, &penv->state);
+}
+EXPORT_SYMBOL(icnss_is_fw_down);
+
 int icnss_power_off(struct device *dev)
 {
 	struct icnss_priv *priv = dev_get_drvdata(dev);
