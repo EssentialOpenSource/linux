@@ -3033,7 +3033,7 @@ static int __ffs_func_bind_do_nums(enum ffs_entity_type type, u8 *valuep,
 
 	ffs_log("exit: newValue %d", newValue);
 
-	return USB_GADGET_DELAYED_STATUS;
+	return creq->wLength == 0 ? USB_GADGET_DELAYED_STATUS : 0;
 }
 
 static int __ffs_func_bind_do_os_desc(enum ffs_os_desc_type type,
