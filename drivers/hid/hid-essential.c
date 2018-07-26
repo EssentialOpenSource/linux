@@ -20,65 +20,63 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/switch.h>
+#include <linux/kthread.h>
 
 #include "hid-ids.h"
 
 #define HEADSET_STATUS 2
 #define HEADSET_PRESENT_OFFSET (1 << 4)
-#define HEASET_MIC_OFFSET (1 << 3)
+#define HEADSET_MIC_OFFSET (1 << 3)
 
 struct mata_dongle_dev {
-        struct hid_device *hid;
-        struct switch_dev headset_dev;
-        struct work_struct irq_work;
-        u8      mic_present;
-        u8      headset_present;
+	struct hid_device *hid;
+	struct switch_dev headset_dev;
+	struct kthread_work irq_work;
+	struct kthread_worker worker;
+	struct task_struct *worker_thread;
+	u8 mic_present;
+	u8 headset_present;
 };
 
-static void mata_dongle_irq_work(struct work_struct *work)
+static void mata_dongle_irq_work(struct kthread_work *work)
 {
-	struct mata_dongle_dev *hdata =
+	struct mata_dongle_dev *mdata =
 		container_of(work, struct mata_dongle_dev,
 			     irq_work);
 
-	if (hdata->headset_present && hdata->mic_present)
-		switch_set_state(&hdata->headset_dev, 1);
-	else if (hdata->headset_present && !hdata->mic_present)
-		switch_set_state(&hdata->headset_dev, 2);
+	if (mdata->headset_present && mdata->mic_present)
+		switch_set_state(&mdata->headset_dev, 1);
+	else if (mdata->headset_present && !mdata->mic_present)
+		switch_set_state(&mdata->headset_dev, 2);
 	else
-		switch_set_state(&hdata->headset_dev, 0);
+		switch_set_state(&mdata->headset_dev, 0);
 	/* notify to audio deamon */
-	sysfs_notify(&hdata->headset_dev.dev->kobj, NULL, "state");
+	sysfs_notify(&mdata->headset_dev.dev->kobj, NULL, "state");
 }
 
 static int mata_dongle_raw_event(struct hid_device *hid, struct hid_report *report,
 	 u8 *data, int size)
 {
-	struct mata_dongle_dev *hdata = hid_get_drvdata(hid);
-	switch (report->id) {
-	case 1:
-		/* Classic event - pass upstream*/
-		break;
-	case 2:
+	struct mata_dongle_dev *mdata = hid_get_drvdata(hid);
+	if (report->id == 2) {
 		/* Check if headset is connected */
 		if (data[HEADSET_STATUS] & HEADSET_PRESENT_OFFSET) {
-			hdata->headset_present = 1;
+			mdata->headset_present = 1;
 		}
 		else {
-			hdata->headset_present = 0;
+			mdata->headset_present = 0;
 		}
-		if (data[HEADSET_STATUS] & HEASET_MIC_OFFSET) {
-			hdata->mic_present = 1;
+		if (data[HEADSET_STATUS] & HEADSET_MIC_OFFSET) {
+			mdata->mic_present = 1;
 		}
 		else {
-			hdata->mic_present = 0;
+			mdata->mic_present = 0;
 		}
 		/* switch speakers should not run in interrupt context */
-		schedule_work(&hdata->irq_work);
+		queue_kthread_work(&mdata->worker, &mdata->irq_work);
 		return 1;
-	default:	/* unknown report */
-		break;
-	}
+	} else if (!(report->id == 1))
+		pr_err("%s: unknown event", __func__);
 
 	return 0;
 }
@@ -86,19 +84,20 @@ static int mata_dongle_raw_event(struct hid_device *hid, struct hid_report *repo
 static int mata_dongle_probe(struct hid_device *hid, const struct hid_device_id *id)
 {
 	int ret;
-	struct mata_dongle_dev *data = NULL;
+	struct mata_dongle_dev *mdata = NULL;
+	struct sched_param param = { .sched_priority = 6 };
 
-	data = devm_kzalloc(&hid->dev, sizeof(struct mata_dongle_dev), GFP_KERNEL);
-        if (!data)
-                return -ENOMEM;
+	mdata = devm_kzalloc(&hid->dev, sizeof(struct mata_dongle_dev), GFP_KERNEL);
+	if (!mdata)
+		return -ENOMEM;
 
-	data->hid = hid;
-	data->headset_dev.name = "mata_headset";
-	if (switch_dev_register(&data->headset_dev) < 0) {
+	mdata->hid = hid;
+	mdata->headset_dev.name = "mata_headset";
+	if (switch_dev_register(&mdata->headset_dev) < 0) {
 		pr_err("%s: register in switch failed\n",__func__);
 		goto err_free;
 	}
-	hid_set_drvdata(hid, data);
+	hid_set_drvdata(hid, mdata);
 
 	ret = hid_parse(hid);
 	if (ret) {
@@ -112,8 +111,17 @@ static int mata_dongle_probe(struct hid_device *hid, const struct hid_device_id 
 		goto err_free;
 	}
 
-	INIT_WORK(&data->irq_work,
-		  mata_dongle_irq_work);
+	init_kthread_worker(&mdata->worker);
+	mdata->worker_thread = kthread_run(kthread_worker_fn,
+			&mdata->worker, "hid_essential_worker");
+	if (IS_ERR(mdata->worker_thread)) {
+		pr_err("unable to start mata_dongle thread\n");
+		goto err_free;
+	}
+
+	init_kthread_work(&mdata->irq_work, mata_dongle_irq_work);
+
+	sched_setscheduler(mdata->worker_thread, SCHED_FIFO, &param);
 
 	return 0;
 err_free:
@@ -122,12 +130,13 @@ err_free:
 
 static void mata_dongle_remove(struct hid_device *hid)
 {
-	struct mata_dongle_dev *data = hid_get_drvdata(hid);
-	if (!data) {
+	struct mata_dongle_dev *mdata = hid_get_drvdata(hid);
+	if (!mdata) {
 		pr_err("Invalid params\n");
 		goto end;
 	}
-	switch_dev_unregister(&data->headset_dev);
+	kthread_stop(mdata->worker_thread);
+	switch_dev_unregister(&mdata->headset_dev);
 	hid_hw_stop(hid);
 end:
 	return;
