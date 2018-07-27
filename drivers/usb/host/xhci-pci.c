@@ -222,6 +222,14 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
 		val |= (1 << 15);
 		writel(val, reg);
 		readl(reg);
+		// Apply FS USB timeout quirk for FL1100LX.
+		xhci_dbg(xhci, "Apply FS USB timeout quirk for FL1100LX.\n");
+		reg = (void __iomem *) xhci->cap_regs + 0x813C;
+		val = readl(reg);
+		val &= 0xffc003ff;
+		val |= 0x32000;
+		writel(val, reg);
+		readl(reg);
 	}
 }
 
