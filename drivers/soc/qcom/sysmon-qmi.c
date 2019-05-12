@@ -474,7 +474,7 @@ int sysmon_send_shutdown(struct subsys_desc *dest_desc)
 	shutdown_ack_ret = wait_for_shutdown_ack(dest_desc);
 	if (shutdown_ack_ret < 0) {
 		pr_err("shutdown_ack SMP2P bit for %s not set\n", data->name);
-		if (!&data->ind_recv.done) {
+		if (!completion_done(&data->ind_recv)) {
 			pr_err("QMI shutdown indication not received\n");
 			ret = shutdown_ack_ret;
 		}
