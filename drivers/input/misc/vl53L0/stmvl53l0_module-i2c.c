@@ -165,18 +165,16 @@ static int stmvl53l0_probe(struct i2c_client *client,
 	if(rc < 0)
 		goto END;
 
-	if(&i2c_object->client->dev.of_node){
-		vl53l0_data->en_gpio = of_get_named_gpio(i2c_object->client->dev.of_node, "qcom,en_gpio", 0);
-		if(!gpio_is_valid(vl53l0_data->en_gpio)){
-			vl53l0_errmsg("%s:%d, en gpio not specified\n",
-				__func__, __LINE__);
-			rc = -1;
-			goto END;
-		}else{
-			rc = gpio_request(vl53l0_data->en_gpio, "en_stmvl53l0");
-			if(rc)
-				vl53l0_errmsg("request en_stmvl53l0 gpio failed, ret=%d\n", rc);
-		}
+	vl53l0_data->en_gpio = of_get_named_gpio(i2c_object->client->dev.of_node, "qcom,en_gpio", 0);
+	if(!gpio_is_valid(vl53l0_data->en_gpio)){
+		vl53l0_errmsg("%s:%d, en gpio not specified\n",
+			__func__, __LINE__);
+		rc = -1;
+		goto END;
+	}else{
+		rc = gpio_request(vl53l0_data->en_gpio, "en_stmvl53l0");
+		if(rc)
+			vl53l0_errmsg("request en_stmvl53l0 gpio failed, ret=%d\n", rc);
 	}
 
 	/* init default value */
