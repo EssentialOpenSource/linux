@@ -13,3 +13,6 @@ obj-$(CONFIG_CRYPTO_DEV_QCOM_ICE) += ice.o
 
 KASAN_SANITIZE_compat_qcedev.o := n
 KASAN_SANITIZE_qcedev.o := n
+
+subdir-ccflags-y += \
+	$(call cc-option,-Wno-frame-larger-than=)
