@@ -344,7 +344,7 @@ struct ion_heap *ion_cma_secure_heap_create(struct ion_platform_heap *data)
 	 * used to make the link with reserved CMA memory
 	 */
 	heap->priv = data->priv;
-	heap->type = ION_HEAP_TYPE_HYP_CMA;
+	heap->type = (enum ion_heap_type)ION_HEAP_TYPE_HYP_CMA;
 	cma_heap_has_outer_cache = data->has_outer_cache;
 	return heap;
 }

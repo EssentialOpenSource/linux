@@ -390,7 +390,7 @@ struct ion_heap *ion_system_secure_heap_create(struct ion_platform_heap *unused)
 	if (!heap)
 		return ERR_PTR(-ENOMEM);
 	heap->heap.ops = &system_secure_heap_ops;
-	heap->heap.type = ION_HEAP_TYPE_SYSTEM_SECURE;
+	heap->heap.type = (enum ion_heap_type)ION_HEAP_TYPE_SYSTEM_SECURE;
 	heap->sys_heap = get_ion_heap(ION_SYSTEM_HEAP_ID);
 
 	heap->destroy_heap = false;
