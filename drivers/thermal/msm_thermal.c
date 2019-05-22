@@ -3823,8 +3823,10 @@ init_kthread:
 	 * Adjust cpus offlined bit when hotplug intitializes so that the new
 	 * cpus offlined state is based on hotplug threshold range
 	 */
-	if (hotplug_init_cpu_offlined())
+	if (hotplug_init_cpu_offlined()) {
+		complete(&hotplug_notify_complete);
 		kthread_stop(hotplug_task);
+	}
 }
 
 static __ref int do_freq_mitigation(void *data)
