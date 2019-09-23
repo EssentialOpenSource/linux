@@ -377,7 +377,7 @@ static int mdss_fb_get_panel_xres(struct mdss_panel_info *pinfo)
 	if (pinfo->split_link_enabled)
 		xres = xres * pinfo->mipi.num_of_sublinks;
 #ifdef CONFIG_BOARD_MATA
-	return xres - 127;
+	return xres - 124;
 #else
 	return xres;
 #endif
