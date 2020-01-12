@@ -93,6 +93,13 @@ static int camera_v4l2_querycap(struct file *filep, void *fh,
 	int rc;
 	struct v4l2_event event;
 
+	cap->bus_info[0] = 0;
+	strlcpy(cap->driver, "msm-sensor", sizeof(cap->driver));
+	strlcpy(cap->card, "msm-sensor", sizeof(cap->card));
+	cap->device_caps = V4L2_CAP_VIDEO_OUTPUT |
+		V4L2_CAP_STREAMING;
+	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+
 	if (msm_is_daemon_present() == false)
 		return 0;
 
