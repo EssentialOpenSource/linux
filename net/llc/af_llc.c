@@ -96,8 +96,16 @@ static inline u8 llc_ui_header_len(struct sock *sk, struct sockaddr_llc *addr)
 {
 	u8 rc = LLC_PDU_LEN_U;
 
-	if (addr->sllc_test || addr->sllc_xid)
+	if (addr->sllc_test)
 		rc = LLC_PDU_LEN_U;
+	else if (addr->sllc_xid)
+		/* We need to expand header to sizeof(struct llc_xid_info)
+		 * since llc_pdu_init_as_xid_cmd() sets 4,5,6 bytes of LLC header
+		 * as XID PDU. In llc_ui_sendmsg() we reserved header size and then
+		 * filled all other space with user data. If we won't reserve this
+		 * bytes, llc_pdu_init_as_xid_cmd() will overwrite user data
+		 */
+		rc = LLC_PDU_LEN_U_XID;
 	else if (sk->sk_type == SOCK_STREAM)
 		rc = LLC_PDU_LEN_I;
 	return rc;
@@ -271,6 +279,10 @@ static int llc_ui_autobind(struct socket *sock, struct sockaddr_llc *addr)
 
 	if (!sock_flag(sk, SOCK_ZAPPED))
 		goto out;
+	if (!addr->sllc_arphrd)
+		addr->sllc_arphrd = ARPHRD_ETHER;
+	if (addr->sllc_arphrd != ARPHRD_ETHER)
+		goto out;
 	rc = -ENODEV;
 	if (sk->sk_bound_dev_if) {
 		llc->dev = dev_get_by_index(&init_net, sk->sk_bound_dev_if);
@@ -328,15 +340,15 @@ static int llc_ui_bind(struct socket *sock, struct sockaddr *uaddr, int addrlen)
 	if (unlikely(!sock_flag(sk, SOCK_ZAPPED) || addrlen != sizeof(*addr)))
 		goto out;
 	rc = -EAFNOSUPPORT;
-	if (unlikely(addr->sllc_family != AF_LLC))
+	if (!addr->sllc_arphrd)
+		addr->sllc_arphrd = ARPHRD_ETHER;
+	if (unlikely(addr->sllc_family != AF_LLC || addr->sllc_arphrd != ARPHRD_ETHER))
 		goto out;
 	rc = -ENODEV;
 	rcu_read_lock();
 	if (sk->sk_bound_dev_if) {
 		llc->dev = dev_get_by_index_rcu(&init_net, sk->sk_bound_dev_if);
 		if (llc->dev) {
-			if (!addr->sllc_arphrd)
-				addr->sllc_arphrd = llc->dev->type;
 			if (is_zero_ether_addr(addr->sllc_mac))
 				memcpy(addr->sllc_mac, llc->dev->dev_addr,
 				       IFHWADDRLEN);

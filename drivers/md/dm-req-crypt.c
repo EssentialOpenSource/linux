@@ -45,7 +45,9 @@
 #define KEY_SIZE_XTS 32
 #define AES_XTS_IV_LEN 16
 #define MAX_MSM_ICE_KEY_LUT_SIZE 32
+#ifndef SECTOR_SIZE
 #define SECTOR_SIZE 512
+#endif
 #define MIN_CRYPTO_TRANSFER_SIZE (4 * 1024)
 
 #define DM_REQ_CRYPT_ERROR -1
